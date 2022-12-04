@@ -21,8 +21,7 @@ import java.util.TimerTask;
 
 @PluginDescriptor(
 	name = "Inventory Total",
-	description = "Shows the total GE value of all items in your inventory.",
-	enabledByDefault = false
+	description = "Totals item GE prices in your inventory."
 )
 
 public class InventoryTotalPlugin extends Plugin
