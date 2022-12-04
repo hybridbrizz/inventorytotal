@@ -1,2 +1,2 @@
-# Example
-An example greeter plugin
+# Inventory Total
+Totals item GE prices in your inventory.
