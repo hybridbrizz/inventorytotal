@@ -175,7 +175,7 @@ class InventoryTotalOverlay extends Overlay
 							 Widget inventoryWidget, long totalQty, long total, String totalText,
 							 String runTimeText, int height) {
 		int imageSize = 15;
-		boolean showCoinStack = config.showCoinStack() && total != 0;
+		boolean showCoinStack = config.showCoinStack();
 		int numCoins;
 		if (total > Integer.MAX_VALUE)
 		{
@@ -188,6 +188,10 @@ class InventoryTotalOverlay extends Overlay
 		else
 		{
 			numCoins = (int) total;
+			if (numCoins == 0)
+			{
+				numCoins = 1000000;
+			}
 		}
 		numCoins = Math.abs(numCoins);
 
