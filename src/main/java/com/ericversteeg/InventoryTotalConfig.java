@@ -207,9 +207,9 @@ public interface InventoryTotalConfig extends Config
 
 	@ConfigItem(
 			position = 18,
-			keyName = "showRunTime",
-			name = "Show Run Time",
-			description = "Configures whether or not the run time is shown when available."
+			keyName = "showLapTime",
+			name = "Show Lap Time",
+			description = "Configures whether or not a lap time is shown when available."
 	)
 	default boolean showRunTime()
 	{
