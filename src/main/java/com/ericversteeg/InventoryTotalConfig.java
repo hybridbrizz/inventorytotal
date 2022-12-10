@@ -1,5 +1,6 @@
 package com.ericversteeg;
 
+import net.runelite.client.config.Alpha;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -22,6 +23,7 @@ public interface InventoryTotalConfig extends Config
 		return false;
 	}
 
+	@Alpha
 	@ConfigItem(
 			position = 1,
 			keyName = "totalBackgroundColor",
@@ -35,6 +37,30 @@ public interface InventoryTotalConfig extends Config
 
 	@ConfigItem(
 			position = 2,
+			keyName = "totalTextColor",
+			name = "Text Color",
+			description = "Configures the text color of the total box."
+	)
+	default Color textColor()
+	{
+		return Color.WHITE;
+	}
+
+	@Alpha
+	@ConfigItem(
+			position = 3,
+			keyName = "totalBorderColor",
+			name = "Border Color",
+			description = "Configures the border color of the total box."
+	)
+	default Color borderColor()
+	{
+		return Color.BLACK;
+	}
+
+	@Alpha
+	@ConfigItem(
+			position = 4,
 			keyName = "profitBackgroundColor",
 			name = "Profit Color",
 			description = "Configures the background color of the total box when gaining gp in profit / loss."
@@ -45,7 +71,31 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 3,
+			position = 5,
+			keyName = "profitTextColor",
+			name = "Profit Text Color",
+			description = "Configures the text color of the total box when gaining gp in profit / loss."
+	)
+	default Color profitTextColor()
+	{
+		return Color.WHITE;
+	}
+
+	@Alpha
+	@ConfigItem(
+			position = 6,
+			keyName = "profitBorderColor",
+			name = "Profit Border Color",
+			description = "Configures the border color of the total box when gaining gp in profit / loss."
+	)
+	default Color profitBorderColor()
+	{
+		return Color.BLACK;
+	}
+
+	@Alpha
+	@ConfigItem(
+			position = 7,
 			keyName = "lossBackgroundColor",
 			name = "Loss Color",
 			description = "Configures the background color of the total box when losing gp in profit / loss."
@@ -56,18 +106,30 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 4,
-			keyName = "opaqueBackground",
-			name = "Opaque Background",
-			description = "Configures whether or not the total box background is opaque."
+			position = 8,
+			keyName = "lossTextColor",
+			name = "Loss Text Color",
+			description = "Configures the text color of the total box when losing gp in profit / loss."
 	)
-	default boolean opaqueBackground()
+	default Color lossTextColor()
 	{
-		return true;
+		return Color.WHITE;
+	}
+
+	@Alpha
+	@ConfigItem(
+			position = 9,
+			keyName = "lossBorderColor",
+			name = "Loss Border Color",
+			description = "Configures the border color of the total box when losing gp in profit / loss."
+	)
+	default Color lossBorderColor()
+	{
+		return Color.BLACK;
 	}
 
 	@ConfigItem(
-			position = 5,
+			position = 11,
 			keyName = "roundedCorners",
 			name = "Rounded Corners",
 			description = "Configures whether or not the total box has rounded corners."
@@ -78,7 +140,18 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 6,
+			position = 12,
+			keyName = "cornerRadius",
+			name = "Corner Radius",
+			description = "Configures the corner radius for rounded corners."
+	)
+	default int cornerRadius()
+	{
+		return 10;
+	}
+
+	@ConfigItem(
+			position = 13,
 			keyName = "alignment",
 			name = "Alignment",
 			description = "Configures the alignment of the total box."
@@ -89,7 +162,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 7,
+			position = 14,
 			keyName = "inventoryOffsetX",
 			name = "Inventory Offset X",
 			description = "Configures where the total box x-axis is located relative to the inventory."
@@ -100,7 +173,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 8,
+			position = 15,
 			keyName = "inventoryOffsetXNegative",
 			name = "Inventory Offset X Negative",
 			description = "Configures whether or not the total box y-axis offset is a negative number."
@@ -111,7 +184,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 9,
+			position = 16,
 			keyName = "inventoryOffsetY",
 			name = "Inventory Offset Y",
 			description = "Configures where the total box x-axis is located relative to the inventory."
@@ -122,7 +195,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 10,
+			position = 17,
 			keyName = "inventoryOffsetYNegative",
 			name = "Inventory Offset Y Negative",
 			description = "Configures whether or not the total box y-axis offset is a negative number."
@@ -133,7 +206,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 11,
+			position = 18,
 			keyName = "showRunTime",
 			name = "Show Run Time",
 			description = "Configures whether or not the run time is shown when available."
@@ -144,7 +217,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 11,
+			position = 19,
 			keyName = "showExactGp",
 			name = "Show Exact Gp",
 			description = "Configures whether or not the exact gp total is shown in the total box."
@@ -155,7 +228,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 11,
+			position = 20,
 			keyName = "showCoinStack",
 			name = "Show Coin Stack",
 			description = "Configures whether or not the coin stack is displayed."
@@ -166,7 +239,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 11,
+			position = 21,
 			keyName = "showWhileBanking",
 			name = "Show While Banking",
 			description = "Configures whether or not the total box is shown while banking."

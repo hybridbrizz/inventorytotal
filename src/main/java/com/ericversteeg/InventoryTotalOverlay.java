@@ -247,7 +247,25 @@ class InventoryTotalOverlay extends Overlay
 		}
 		int y = inventoryWidget.getCanvasLocation().getY() - height - yOffset;
 
-		Color backgroundColor = config.totalColor();
+		Color backgroundColor;
+		Color borderColor;
+		Color textColor;
+
+		if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS && total >= 0) {
+			backgroundColor = config.profitColor();
+			borderColor = config.profitBorderColor();
+			textColor = config.profitTextColor();
+		}
+		else if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS) {
+			backgroundColor = config.lossColor();
+			borderColor = config.lossBorderColor();
+			textColor = config.lossTextColor();
+		}
+		else {
+			backgroundColor = config.totalColor();
+			borderColor = config.borderColor();
+			textColor = config.textColor();
+		}
 
 		if (plugin.getState() == InventoryTotalState.RUN && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 		{
@@ -261,15 +279,7 @@ class InventoryTotalOverlay extends Overlay
 			}
 		}
 
-		int opacity = 150;
-		if (config.opaqueBackground())
-		{
-			opacity = 255;
-		}
-
-		backgroundColor = new Color(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), opacity);
-
-		int cornerRadius = CORNER_RADIUS;
+		int cornerRadius = config.cornerRadius();
 		if (!config.roundCorners())
 		{
 			cornerRadius = 0;
@@ -278,7 +288,7 @@ class InventoryTotalOverlay extends Overlay
 		int containerAlpha = backgroundColor.getAlpha();
 
 		if (containerAlpha > 0) {
-			graphics.setColor(Color.BLACK);
+			graphics.setColor(borderColor);
 			graphics.drawRoundRect(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
 		}
 
@@ -288,7 +298,7 @@ class InventoryTotalOverlay extends Overlay
 
 		TextComponent textComponent = new TextComponent();
 
-		textComponent.setColor(Color.WHITE);
+		textComponent.setColor(textColor);
 		textComponent.setText(totalText);
 		textComponent.setPosition(new Point(x + HORIZONTAL_PADDING, y + TEXT_Y_OFFSET));
 		textComponent.render(graphics);
@@ -297,7 +307,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			textComponent = new TextComponent();
 
-			textComponent.setColor(Color.WHITE);
+			textComponent.setColor(textColor);
 			textComponent.setText(runTimeText);
 			textComponent.setPosition(new Point((x + width) - HORIZONTAL_PADDING - actualRunTimeWidth - imageWidthWithPadding, y + TEXT_Y_OFFSET));
 			textComponent.render(graphics);
