@@ -251,32 +251,20 @@ class InventoryTotalOverlay extends Overlay
 		Color borderColor;
 		Color textColor;
 
-		if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS && total >= 0) {
-			backgroundColor = config.profitColor();
-			borderColor = config.profitBorderColor();
-			textColor = config.profitTextColor();
-		}
-		else if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS) {
-			backgroundColor = config.lossColor();
-			borderColor = config.lossBorderColor();
-			textColor = config.lossTextColor();
-		}
-		else {
+		if (plugin.getState() == InventoryTotalState.BANK || plugin.getMode() == InventoryTotalMode.TOTAL) {
 			backgroundColor = config.totalColor();
 			borderColor = config.borderColor();
 			textColor = config.textColor();
 		}
-
-		if (plugin.getState() == InventoryTotalState.RUN && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
-		{
-			if (total >= 0)
-			{
-				backgroundColor = config.profitColor();
-			}
-			else
-			{
-				backgroundColor = config.lossColor();
-			}
+		else if (total >= 0) {
+			backgroundColor = config.profitColor();
+			borderColor = config.profitBorderColor();
+			textColor = config.profitTextColor();
+		}
+		else {
+			backgroundColor = config.lossColor();
+			borderColor = config.lossBorderColor();
+			textColor = config.lossTextColor();
 		}
 
 		int cornerRadius = config.cornerRadius();
