@@ -75,13 +75,24 @@ class InventoryTotalOverlay extends Overlay
 
 		if (inventoryWidget == null || inventoryWidget.getCanvasLocation().getX() < 0 || inventoryWidget.isHidden())
 		{
-			inventoryWidget = client.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER);
-			if (inventoryWidget != null && !inventoryWidget.isHidden())
+			Widget [] altInventoryWidgets = new Widget[]
 			{
-				isBank = true;
-				if (!onceBank)
+				client.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER),
+				client.getWidget(WidgetInfo.DEPOSIT_BOX_INVENTORY_ITEMS_CONTAINER)
+			};
+
+			for (Widget altInventoryWidget: altInventoryWidgets)
+			{
+				inventoryWidget = altInventoryWidget;
+				if (inventoryWidget != null && !inventoryWidget.isHidden())
 				{
-					onceBank = true;
+					isBank = true;
+					if (!onceBank)
+					{
+						onceBank = true;
+					}
+
+					break;
 				}
 			}
 		}
