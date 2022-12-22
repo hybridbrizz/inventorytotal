@@ -218,6 +218,11 @@ public class InventoryTotalPlugin extends Plugin
 	{
 		ItemContainer itemContainer = overlay.getEquipmentItemContainer();
 
+		if (itemContainer == null)
+		{
+			return 0;
+		}
+
 		Item ring = itemContainer.getItem(EquipmentInventorySlot.RING.getSlotIdx());
 		Item ammo = itemContainer.getItem(EquipmentInventorySlot.AMMO.getSlotIdx());
 
