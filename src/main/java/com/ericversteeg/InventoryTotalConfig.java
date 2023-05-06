@@ -248,4 +248,14 @@ public interface InventoryTotalConfig extends Config
 	{
 		return true;
 	}
+
+	@ConfigItem(
+			position = 22,
+			keyName = "ignoredItems",
+			name = "Ignored Items",
+			description = "Ignore these items in your inventory (applies after banking)."
+	)
+	default String ignoredItems() {
+		return "Cannon barrels, Cannon base, Cannon furnace, Cannon stand";
+	}
 }

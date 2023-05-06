@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Predicate;
 
 @PluginDescriptor(
 	name = "Inventory Total",
@@ -130,6 +131,8 @@ public class InventoryTotalPlugin extends Plugin
 					initialGp = 0;
 				}
 
+				runData.ignoredItems = getIgnoredItems();
+
 				writeSavedData();
 
 				overlay.hideInterstitial();
@@ -169,6 +172,14 @@ public class InventoryTotalPlugin extends Plugin
 			int itemId = item.getId();
 
 			final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+
+			String itemName = itemComposition.getName();
+			final boolean ignore = runData.ignoredItems.stream().anyMatch(s -> {
+				String lcItemName = itemName.toLowerCase();
+				String lcS = s.toLowerCase();
+				return lcItemName.contains(lcS);
+			});
+			if (ignore) { continue; }
 
 			final boolean isNoted = itemComposition.getNote() != -1;
 			final int realItemId = isNoted ? itemComposition.getLinkedNoteId() : itemId;
@@ -315,6 +326,14 @@ public class InventoryTotalPlugin extends Plugin
 			return new InventoryTotalRunData();
 		}
 		return savedData;
+	}
+
+	private LinkedList<String> getIgnoredItems() {
+		return new LinkedList<>(
+			Arrays.asList(
+				config.ignoredItems().split("\\s*,\\s*")
+			)
+		);
 	}
 
 	long elapsedRunTime()
