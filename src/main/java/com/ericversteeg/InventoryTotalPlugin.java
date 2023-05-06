@@ -111,6 +111,8 @@ public class InventoryTotalPlugin extends Plugin
 
 		runStartTime = Instant.now().toEpochMilli();
 
+		runData.ignoredItems = getIgnoredItems();
+
 		// to handle same tick bank closing
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -130,8 +132,6 @@ public class InventoryTotalPlugin extends Plugin
 				{
 					initialGp = 0;
 				}
-
-				runData.ignoredItems = getIgnoredItems();
 
 				writeSavedData();
 
