@@ -14,11 +14,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.function.Predicate;
+import java.util.*;
 
 @PluginDescriptor(
 	name = "Inventory Total",
@@ -32,6 +28,8 @@ public class InventoryTotalPlugin extends Plugin
 	static final int TOTAL_GP_INDEX = 0;
 	static final int TOTAL_QTY_INDEX = 1;
 	static final int NO_PROFIT_LOSS_TIME = -1;
+	static final int RUNEPOUCH_ITEM_ID = 12791;
+	static final int DIVINE_RUNEPOUCH_ITEM_ID = 27281;
 
 	@Inject
 	private InventoryTotalOverlay overlay;
@@ -74,6 +72,14 @@ public class InventoryTotalPlugin extends Plugin
 	private long runStartTime = 0;
 
 	private long lastWriteSaveTime = 0;
+
+	// from ClueScrollPlugin
+	private static final int[] RUNEPOUCH_AMOUNT_VARBITS = {
+			Varbits.RUNE_POUCH_AMOUNT1, Varbits.RUNE_POUCH_AMOUNT2, Varbits.RUNE_POUCH_AMOUNT3, Varbits.RUNE_POUCH_AMOUNT4
+	};
+	private static final int[] RUNEPOUCH_RUNE_VARBITS = {
+			Varbits.RUNE_POUCH_RUNE1, Varbits.RUNE_POUCH_RUNE2, Varbits.RUNE_POUCH_RUNE3, Varbits.RUNE_POUCH_RUNE4
+	};
 
 	@Override
 	protected void startUp() throws Exception
@@ -163,6 +169,11 @@ public class InventoryTotalPlugin extends Plugin
 		final Item[] items = itemContainer.getItems();
 
 		final LinkedList<Item> allItems = new LinkedList<>(Arrays.asList(items));
+		// only add when the runepouch is in the inventory
+		if (allItems.stream().anyMatch(s -> s.getId() == RUNEPOUCH_ITEM_ID || s.getId() == DIVINE_RUNEPOUCH_ITEM_ID))
+		{
+			allItems.addAll(getRunepouchContents());
+		}
 
 		int totalQty = 0;
 		int totalGp = 0;
@@ -295,6 +306,32 @@ public class InventoryTotalPlugin extends Plugin
 		}
 
 		return eTotal;
+	}
+
+	// from ClueScrollPlugin
+	private List<Item> getRunepouchContents()
+	{
+		EnumComposition runepouchEnum = client.getEnum(EnumID.RUNEPOUCH_RUNE);
+		List<Item> items = new ArrayList<>(RUNEPOUCH_AMOUNT_VARBITS.length);
+		for (int i = 0; i < RUNEPOUCH_AMOUNT_VARBITS.length; i++)
+		{
+			int amount = client.getVarbitValue(RUNEPOUCH_AMOUNT_VARBITS[i]);
+			if (amount <= 0)
+			{
+				continue;
+			}
+
+			int runeId = client.getVarbitValue(RUNEPOUCH_RUNE_VARBITS[i]);
+			if (runeId == 0)
+			{
+				continue;
+			}
+
+			final int itemId = runepouchEnum.getIntValue(runeId);
+			Item item = new Item(itemId, amount);
+			items.add(item);
+		}
+		return items;
 	}
 
 	// max invoke rate approximately once per tick
