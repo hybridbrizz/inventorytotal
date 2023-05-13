@@ -3,12 +3,13 @@
 # Inventory Total
 Totals item prices in your inventory.
 
-![inventory_total](https://user-images.githubusercontent.com/2341316/236947177-887750e0-9ebe-4af0-903c-9d1bcccba76e.png)
+![screenshot_1](https://github.com/erversteeg/inventorytotal/assets/2341316/5e4f309a-6986-428d-99ad-de77b308f1cf)
 
 Enable Profit / Loss mode to see how much gp you are making.
 
-![profit](https://user-images.githubusercontent.com/2341316/236949265-eee7220c-159d-4d26-a28e-eaa0e56fb0ce.png)
+![screenshot_2](https://github.com/erversteeg/inventorytotal/assets/2341316/0852acb8-4114-437c-b734-fb2a5568628b)
 
+![screenshot_3](https://github.com/erversteeg/inventorytotal/assets/2341316/52956554-e387-485b-8439-624a3eadf498)
 
 ### Customizable
 * Frame position
