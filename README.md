@@ -7,8 +7,6 @@ Totals item prices in your inventory.
 
 Enable Profit / Loss mode to see how much gp you are making.
 
-![screenshot_2](https://github.com/erversteeg/inventorytotal/assets/2341316/0852acb8-4114-437c-b734-fb2a5568628b)
-
 ![screenshot_3](https://github.com/erversteeg/inventorytotal/assets/2341316/52956554-e387-485b-8439-624a3eadf498)
 
 ### Customizable
