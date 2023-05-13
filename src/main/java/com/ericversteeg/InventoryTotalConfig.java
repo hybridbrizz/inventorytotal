@@ -251,6 +251,17 @@ public interface InventoryTotalConfig extends Config
 
 	@ConfigItem(
 			position = 22,
+			keyName = "showOnEmpty",
+			name = "Show On Empty",
+			description = "Configures whether or not to show the total when inventory is empty."
+	)
+	default boolean showOnEmpty()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+			position = 23,
 			keyName = "ignoredItems",
 			name = "Ignored Items",
 			description = "Ignore these items in your inventory (applies after banking)."

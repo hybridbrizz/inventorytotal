@@ -206,7 +206,7 @@ class InventoryTotalOverlay extends Overlay
 		}
 		numCoins = Math.abs(numCoins);
 
-		if (totalQty == 0 || (plugin.getState() == InventoryTotalState.BANK && !config.showWhileBanking())) {
+		if ((totalQty == 0 && !config.showOnEmpty()) || (plugin.getState() == InventoryTotalState.BANK && !config.showWhileBanking())) {
 			return;
 		}
 
