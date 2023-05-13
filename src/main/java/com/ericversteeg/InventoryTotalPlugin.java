@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 
 @PluginDescriptor(
 	name = "Inventory Total",
-	description = "Totals item GE prices in your inventory."
+	description = "Totals item prices in your inventory."
 )
 
 public class InventoryTotalPlugin extends Plugin

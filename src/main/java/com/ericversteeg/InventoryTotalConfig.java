@@ -16,7 +16,7 @@ public interface InventoryTotalConfig extends Config
 			position = 0,
 			keyName = "enableProfitLoss",
 			name = "Profit / Loss",
-			description = "Configures whether or not the total runs in profit / loss."
+			description = "Configures whether or not current total is relative to start amount."
 	)
 	default boolean enableProfitLoss()
 	{
@@ -28,22 +28,22 @@ public interface InventoryTotalConfig extends Config
 			position = 1,
 			keyName = "totalBackgroundColor",
 			name = "Background Color",
-			description = "Configures the background color of the total box."
+			description = "Configures the background color."
 	)
 	default Color totalColor()
 	{
-		return Color.decode("#939393");
+		return Color.decode("#99903D");
 	}
 
 	@ConfigItem(
 			position = 2,
 			keyName = "totalTextColor",
 			name = "Text Color",
-			description = "Configures the text color of the total box."
+			description = "Configures the text color."
 	)
 	default Color textColor()
 	{
-		return Color.WHITE;
+		return Color.decode("#FFF7E3");
 	}
 
 	@Alpha
@@ -51,11 +51,11 @@ public interface InventoryTotalConfig extends Config
 			position = 3,
 			keyName = "totalBorderColor",
 			name = "Border Color",
-			description = "Configures the border color of the total box."
+			description = "Configures the border color."
 	)
 	default Color borderColor()
 	{
-		return Color.BLACK;
+		return Color.decode("#0E0E0E");
 	}
 
 	@Alpha
@@ -63,22 +63,22 @@ public interface InventoryTotalConfig extends Config
 			position = 4,
 			keyName = "profitBackgroundColor",
 			name = "Profit Color",
-			description = "Configures the background color of the total box when gaining gp in profit / loss."
+			description = "Configures profit background color."
 	)
 	default Color profitColor()
 	{
-		return Color.decode("#42834C");
+		return Color.decode("#245C2D");
 	}
 
 	@ConfigItem(
 			position = 5,
 			keyName = "profitTextColor",
 			name = "Profit Text Color",
-			description = "Configures the text color of the total box when gaining gp in profit / loss."
+			description = "Configures profit text color."
 	)
 	default Color profitTextColor()
 	{
-		return Color.WHITE;
+		return Color.decode("#FFF7E3");
 	}
 
 	@Alpha
@@ -86,11 +86,11 @@ public interface InventoryTotalConfig extends Config
 			position = 6,
 			keyName = "profitBorderColor",
 			name = "Profit Border Color",
-			description = "Configures the border color of the total box when gaining gp in profit / loss."
+			description = "Configures profit border color."
 	)
 	default Color profitBorderColor()
 	{
-		return Color.BLACK;
+		return Color.decode("#0E0E0E");
 	}
 
 	@Alpha
@@ -98,22 +98,22 @@ public interface InventoryTotalConfig extends Config
 			position = 7,
 			keyName = "lossBackgroundColor",
 			name = "Loss Color",
-			description = "Configures the background color of the total box when losing gp in profit / loss."
+			description = "Configures loss background color."
 	)
 	default Color lossColor()
 	{
-		return Color.decode("#912A2A");
+		return Color.decode("#5F1515");
 	}
 
 	@ConfigItem(
 			position = 8,
 			keyName = "lossTextColor",
 			name = "Loss Text Color",
-			description = "Configures the text color of the total box when losing gp in profit / loss."
+			description = "Configures loss text color."
 	)
 	default Color lossTextColor()
 	{
-		return Color.WHITE;
+		return Color.decode("#FFF7E3");
 	}
 
 	@Alpha
@@ -121,29 +121,29 @@ public interface InventoryTotalConfig extends Config
 			position = 9,
 			keyName = "lossBorderColor",
 			name = "Loss Border Color",
-			description = "Configures the border color of the total box when losing gp in profit / loss."
+			description = "Configures loss border color."
 	)
 	default Color lossBorderColor()
 	{
-		return Color.BLACK;
+		return Color.decode("#0E0E0E");
 	}
 
 	@ConfigItem(
 			position = 11,
 			keyName = "roundedCorners",
 			name = "Rounded Corners",
-			description = "Configures whether or not the total box has rounded corners."
+			description = "Toggle rounded corners."
 	)
 	default boolean roundCorners()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
 			position = 12,
 			keyName = "cornerRadius",
 			name = "Corner Radius",
-			description = "Configures the corner radius for rounded corners."
+			description = "Configures the corner radius."
 	)
 	default int cornerRadius()
 	{
@@ -154,7 +154,7 @@ public interface InventoryTotalConfig extends Config
 			position = 13,
 			keyName = "alignment",
 			name = "Alignment",
-			description = "Configures the alignment of the total box."
+			description = "Configures alignment."
 	)
 	default InventoryTotalAlignment horizontalAlignment()
 	{
@@ -165,7 +165,7 @@ public interface InventoryTotalConfig extends Config
 			position = 14,
 			keyName = "inventoryOffsetX",
 			name = "Inventory Offset X",
-			description = "Configures where the total box x-axis is located relative to the inventory."
+			description = "Configures x-axis offset."
 	)
 	default int inventoryXOffset()
 	{
@@ -176,7 +176,7 @@ public interface InventoryTotalConfig extends Config
 			position = 15,
 			keyName = "inventoryOffsetXNegative",
 			name = "Inventory Offset X Negative",
-			description = "Configures whether or not the total box y-axis offset is a negative number."
+			description = "Configures whether or not the y-axis offset is a negative number."
 	)
 	default boolean isInventoryXOffsetNegative()
 	{
@@ -187,7 +187,7 @@ public interface InventoryTotalConfig extends Config
 			position = 16,
 			keyName = "inventoryOffsetY",
 			name = "Inventory Offset Y",
-			description = "Configures where the total box x-axis is located relative to the inventory."
+			description = "Configures y-axis offset."
 	)
 	default int inventoryYOffset()
 	{
@@ -198,7 +198,7 @@ public interface InventoryTotalConfig extends Config
 			position = 17,
 			keyName = "inventoryOffsetYNegative",
 			name = "Inventory Offset Y Negative",
-			description = "Configures whether or not the total box y-axis offset is a negative number."
+			description = "Configures whether or not the y-axis offset is a negative number."
 	)
 	default boolean isInventoryYOffsetNegative()
 	{
@@ -209,7 +209,7 @@ public interface InventoryTotalConfig extends Config
 			position = 18,
 			keyName = "showLapTime",
 			name = "Show Run Time",
-			description = "Configures whether or not the run time is displayed."
+			description = "Configures whether or not the run time is visible."
 	)
 	default boolean showRunTime()
 	{
@@ -220,7 +220,7 @@ public interface InventoryTotalConfig extends Config
 			position = 19,
 			keyName = "showExactGp",
 			name = "Show Exact Gp",
-			description = "Configures whether or not the exact gp total is shown in the total box."
+			description = "Configures whether or not the exact gp value is visible."
 	)
 	default boolean showExactGp()
 	{
@@ -231,7 +231,7 @@ public interface InventoryTotalConfig extends Config
 			position = 20,
 			keyName = "showCoinStack",
 			name = "Show Coin Stack",
-			description = "Configures whether or not the coin stack is displayed."
+			description = "Configures whether or not the coin stack image is visible."
 	)
 	default boolean showCoinStack()
 	{
@@ -242,7 +242,7 @@ public interface InventoryTotalConfig extends Config
 			position = 21,
 			keyName = "showWhileBanking",
 			name = "Show While Banking",
-			description = "Configures whether or not the total box is shown while banking."
+			description = "Configures whether or not the total is visible while banking."
 	)
 	default boolean showWhileBanking()
 	{
