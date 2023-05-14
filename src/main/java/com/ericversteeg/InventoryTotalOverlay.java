@@ -16,17 +16,24 @@ import net.runelite.client.util.ImageUtil;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class InventoryTotalOverlay extends Overlay
 {
-	private static final int CORNER_RADIUS = 10;
 	private static final int TEXT_Y_OFFSET = 17;
 	private static final String PROFIT_LOSS_TIME_FORMAT = "%02d:%02d:%02d";
 	private static final String PROFIT_LOSS_TIME_NO_HOURS_FORMAT = "%02d:%02d";
 	private static final int HORIZONTAL_PADDING = 10;
+	private static final int BANK_CLOSE_DELAY = 1200;
 
 	private final Client client;
 	private final InventoryTotalPlugin plugin;
@@ -41,6 +48,9 @@ class InventoryTotalOverlay extends Overlay
 	private boolean onceBank = false;
 
 	private boolean showInterstitial = false;
+
+	private boolean postNewRun = false;
+	private long newRunTime = 0;
 
 	@Inject
 	private InventoryTotalOverlay(Client client, InventoryTotalPlugin plugin, InventoryTotalConfig config, ItemManager itemManager)
@@ -108,12 +118,13 @@ class InventoryTotalOverlay extends Overlay
 
 		// before totals
 		boolean newRun = plugin.getPreviousState() == InventoryTotalState.BANK && plugin.getState() == InventoryTotalState.RUN;
+		plugin.getRunData().itemQtys.clear();
 
 		// totals
-		int [] inventoryTotals = plugin.getInventoryTotals();
+		int [] inventoryTotals = plugin.getInventoryTotals(false);
 
 		int inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_INDEX];
-		int equipmentTotal = plugin.getEquipmentTotal();
+		int equipmentTotal = plugin.getEquipmentTotal(false);
 
 		int inventoryQty = inventoryTotals[InventoryTotalPlugin.TOTAL_QTY_INDEX];
 
@@ -130,10 +141,20 @@ class InventoryTotalOverlay extends Overlay
 		if (newRun)
 		{
 			plugin.onNewRun();
+
+			postNewRun = true;
+			newRunTime = Instant.now().toEpochMilli();
 		}
 		else if (plugin.getPreviousState() == InventoryTotalState.RUN && plugin.getState() == InventoryTotalState.BANK)
 		{
 			plugin.onBank();
+		}
+
+		// check post new run
+		if (postNewRun && (Instant.now().toEpochMilli() - newRunTime) > BANK_CLOSE_DELAY)
+		{
+			plugin.postNewRun();
+			postNewRun = false;
 		}
 	}
 
@@ -319,6 +340,172 @@ class InventoryTotalOverlay extends Overlay
 			BufferedImage coinsImage = itemManager.getImage(ItemID.COINS_995, numCoins, false);
 			coinsImage = ImageUtil.resizeImage(coinsImage, imageSize, imageSize);
 			graphics.drawImage(coinsImage, (x + width) - HORIZONTAL_PADDING - imageSize + imageOffset, y + 3, null);
+		}
+
+		net.runelite.api.Point mouse = client.getMouseCanvasPosition();
+		int mouseX = mouse.getX();
+		int mouseY = mouse.getY();
+
+		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
+		if (roundRectangle2D.contains(mouseX, mouseY) && plugin.getState() != InventoryTotalState.BANK
+				&& !postNewRun && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
+		{
+			renderProfitLossLedger(graphics);
+		}
+	}
+
+	private void renderProfitLossLedger(Graphics2D graphics)
+	{
+		FontMetrics fontMetrics = graphics.getFontMetrics();
+
+		java.util.List<InventoryTotalLedgerItem> ledger = plugin.getLedger().stream()
+				.filter(item -> item.getQty() != 0).collect(Collectors.toList());
+
+		java.util.List<InventoryTotalLedgerItem> gain = ledger.stream().filter(item -> item.getQty() > 0)
+				.collect(Collectors.toList());
+
+		java.util.List<InventoryTotalLedgerItem> loss = ledger.stream().filter(item -> item.getQty() < 0)
+				.collect(Collectors.toList());
+
+		gain = gain.stream().sorted(Comparator.comparingInt(o -> -(o.getQty() * o.getAmount()))).collect(Collectors.toList());
+		loss = loss.stream().sorted(Comparator.comparingInt(o -> (o.getQty() * o.getAmount()))).collect(Collectors.toList());
+
+		ledger = new LinkedList<>();
+		ledger.addAll(gain);
+		ledger.addAll(loss);
+
+		if (ledger.isEmpty())
+		{
+			return;
+		}
+
+		int totalGain = gain.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+		int totalLoss = loss.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+
+		ledger.add(new InventoryTotalLedgerItem("Total Gain", 1, totalGain));
+		ledger.add(new InventoryTotalLedgerItem("Total Loss", 1, totalLoss));
+		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
+
+		String [] descriptions = ledger.stream().map(item -> {
+			String desc = item.getDescription();
+			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1 && !item.getDescription().contains("Total"))
+			{
+				desc = Math.abs(item.getQty()) + " " + desc;
+			}
+			return desc;
+		}).toArray(String[]::new);
+		Integer [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
+
+		String [] formattedPrices = Arrays.stream(prices).map(
+				p -> NumberFormat.getInstance(Locale.ENGLISH).format(p)
+		).toArray(String[]::new);
+
+		Integer [] rowWidths = IntStream.range(0, descriptions.length).mapToObj(
+				i -> fontMetrics.stringWidth(descriptions[i])
+						+ fontMetrics.stringWidth(formattedPrices[i])
+		).toArray(Integer[]::new);
+
+		Arrays.sort(rowWidths);
+
+		net.runelite.api.Point mouse = client.getMouseCanvasPosition();
+		int mouseX = mouse.getX();
+		int mouseY = mouse.getY();
+
+		int sectionPadding = 5;
+
+		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING * 2;
+		int rowH = fontMetrics.getHeight();
+
+		int sectionPaddingTotal = sectionPadding;
+		if (!gain.isEmpty())
+		{
+			sectionPaddingTotal += sectionPadding;
+		}
+
+		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPaddingTotal + 2;
+
+		int x = mouseX - rowW - 10;
+		int y = mouseY - h / 2;
+
+		int cornerRadius = 0;
+
+		graphics.setColor(Color.decode("#1b1b1b"));
+		graphics.fillRoundRect(x, y, rowW, h, cornerRadius, cornerRadius);
+
+		int borderWidth = 1;
+
+		graphics.setColor(Color.decode("#0b0b0b"));
+		graphics.setStroke(new BasicStroke(borderWidth));
+		graphics.drawRoundRect(x - borderWidth / 2, y - borderWidth / 2,
+				rowW + borderWidth / 2, h + borderWidth / 2, cornerRadius, cornerRadius);
+
+		if (descriptions.length == prices.length)
+		{
+			int yOffset = 0;
+			String prevDesc = "";
+			for (int i = 0; i < descriptions.length; i++)
+			{
+				String desc = descriptions[i];
+
+				if (!prevDesc.contains("Total") && desc.contains("Total"))
+				{
+					yOffset += sectionPadding;
+				}
+				else if (i > 0 && prices[i - 1] >= 0 && prices[i] < 0 && !prevDesc.contains("Total"))
+				{
+					yOffset += sectionPadding;
+				}
+
+				int textX = x + HORIZONTAL_PADDING;
+				int textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
+
+				TextComponent textComponent = new TextComponent();
+
+				if (desc.contains("Total") && desc.length() == 5)
+				{
+					textComponent.setColor(Color.ORANGE);
+				}
+				else if (desc.contains("Total"))
+				{
+					textComponent.setColor(Color.YELLOW);
+				}
+				else
+				{
+					textComponent.setColor(Color.decode("#FFF7E3"));
+				}
+
+				textComponent.setText(desc);
+
+				textComponent.setPosition(new Point(textX, textY));
+				textComponent.render(graphics);
+
+				prevDesc = desc;
+
+				int price = prices[i];
+
+				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
+
+				int textW = fontMetrics.stringWidth(formattedPrice);
+				textX = x + rowW - HORIZONTAL_PADDING - textW;
+				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
+
+				textComponent = new TextComponent();
+
+				if (price > 0)
+				{
+					textComponent.setColor(Color.GREEN);
+				}
+				else if (price < 0)
+				{
+					textComponent.setColor(Color.RED);
+				}
+
+				textComponent.setText(formattedPrice);
+
+				textComponent.setPosition(new Point(textX, textY));
+				textComponent.render(graphics);
+			}
 		}
 	}
 

@@ -15,6 +15,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @PluginDescriptor(
 	name = "Inventory Total",
@@ -24,7 +25,6 @@ import java.util.*;
 public class InventoryTotalPlugin extends Plugin
 {
 	static final int COINS = ItemID.COINS_995;
-	private static final int BANK_CLOSE_DELAY = 1200;
 	static final int TOTAL_GP_INDEX = 0;
 	static final int TOTAL_QTY_INDEX = 1;
 	static final int NO_PROFIT_LOSS_TIME = -1;
@@ -118,32 +118,30 @@ public class InventoryTotalPlugin extends Plugin
 		runStartTime = Instant.now().toEpochMilli();
 
 		runData.ignoredItems = getIgnoredItems();
+	}
 
-		// to handle same tick bank closing
-		new Timer().schedule(new TimerTask() {
-			@Override
-			public void run() {
-				runData.profitLossInitialGp = totalGp;
+	// to handle same tick bank closing
+	void postNewRun()
+	{
+		runData.initialItemQtys.clear();
 
-				if (mode == InventoryTotalMode.TOTAL)
-				{
-					runData.profitLossInitialGp += getEquipmentTotal();
-				}
+		int inventoryTotal = getInventoryTotals(true)[0];
+		int equipmentTotal = getEquipmentTotal(true);
 
-				if (mode == InventoryTotalMode.PROFIT_LOSS)
-				{
-					initialGp = runData.profitLossInitialGp;
-				}
-				else
-				{
-					initialGp = 0;
-				}
+		runData.profitLossInitialGp = inventoryTotal + equipmentTotal;
 
-				writeSavedData();
+		if (mode == InventoryTotalMode.PROFIT_LOSS)
+		{
+			initialGp = runData.profitLossInitialGp;
+		}
+		else
+		{
+			initialGp = 0;
+		}
 
-				overlay.hideInterstitial();
-			}
-		}, BANK_CLOSE_DELAY);
+		writeSavedData();
+
+		overlay.hideInterstitial();
 	}
 
 	void onBank()
@@ -157,7 +155,7 @@ public class InventoryTotalPlugin extends Plugin
 		writeSavedData();
 	}
 
-	int [] getInventoryTotals()
+	int [] getInventoryTotals(boolean isNewRun)
 	{
 		final ItemContainer itemContainer = overlay.getInventoryItemContainer();
 
@@ -224,7 +222,27 @@ public class InventoryTotalPlugin extends Plugin
 			if (realItemId != COINS && !runData.itemPrices.containsKey(realItemId))
 			{
 				runData.itemPrices.put(realItemId, gePrice);
-				writeSavedData();
+			}
+
+			if (isNewRun)
+			{
+				if (runData.initialItemQtys.containsKey(realItemId))
+				{
+					runData.initialItemQtys.put(realItemId, runData.initialItemQtys.get(realItemId) + itemQty);
+				}
+				else
+				{
+					runData.initialItemQtys.put(realItemId, itemQty);
+				}
+			}
+
+			if (runData.itemQtys.containsKey(realItemId))
+			{
+				runData.itemQtys.put(realItemId, runData.itemQtys.get(realItemId) + itemQty);
+			}
+			else
+			{
+				runData.itemQtys.put(realItemId, itemQty);
 			}
 		}
 
@@ -236,7 +254,7 @@ public class InventoryTotalPlugin extends Plugin
 		return totals;
 	}
 
-	int getEquipmentTotal()
+	int getEquipmentTotal(boolean isNewRun)
 	{
 		ItemContainer itemContainer = overlay.getEquipmentItemContainer();
 
@@ -301,11 +319,92 @@ public class InventoryTotalPlugin extends Plugin
 			if (!runData.itemPrices.containsKey(itemId))
 			{
 				runData.itemPrices.put(itemId, gePrice);
-				writeSavedData();
+			}
+
+			if (isNewRun)
+			{
+				if (runData.initialItemQtys.containsKey(itemId))
+				{
+					runData.initialItemQtys.put(itemId, runData.initialItemQtys.get(itemId) + qty);
+				}
+				else
+				{
+					runData.initialItemQtys.put(itemId, qty);
+				}
+			}
+
+			if (runData.itemQtys.containsKey(itemId))
+			{
+				runData.itemQtys.put(itemId, runData.itemQtys.get(itemId) + qty);
+			}
+			else
+			{
+				runData.itemQtys.put(itemId, qty);
 			}
 		}
 
 		return eTotal;
+	}
+
+	List<InventoryTotalLedgerItem> getLedger()
+	{
+		Map<Integer, Integer> prices = runData.itemPrices;
+		Map<Integer, Integer> initialQtys = runData.initialItemQtys;
+		Map<Integer, Integer> qtys = runData.itemQtys;
+
+		Map<Integer, Integer> qtyDifferences = new HashMap<>();
+
+		HashSet<Integer> combinedQtyKeys = new HashSet<>();
+		combinedQtyKeys.addAll(qtys.keySet());
+		combinedQtyKeys.addAll(initialQtys.keySet());
+
+		for (Integer itemId: combinedQtyKeys)
+		{
+			Integer initialQty = initialQtys.get(itemId);
+			Integer qty = qtys.get(itemId);
+
+			if (initialQty == null)
+			{
+				initialQty = 0;
+			}
+
+			if (qty == null)
+			{
+				qty = 0;
+			}
+
+			qtyDifferences.put(itemId, qty - initialQty);
+		}
+
+		List<InventoryTotalLedgerItem> ledgerItems = new LinkedList<>();
+
+		for (Integer itemId: qtyDifferences.keySet())
+		{
+			final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+			Integer price = prices.get(itemId);
+
+			if (price == null)
+			{
+				price = 0;
+			}
+
+			Integer qtyDifference = qtyDifferences.get(itemId);
+
+			List<InventoryTotalLedgerItem> filteredList = ledgerItems.stream().filter(
+					item -> item.getDescription().equals(itemComposition.getName())).collect(Collectors.toList()
+			);
+
+			if (!filteredList.isEmpty())
+			{
+				filteredList.get(0).addQuantityDifference(qtyDifference);
+			}
+			else
+			{
+				ledgerItems.add(new InventoryTotalLedgerItem(itemComposition.getName(), qtyDifference, price));
+			}
+		}
+
+		return ledgerItems;
 	}
 
 	// from ClueScrollPlugin
@@ -445,5 +544,10 @@ public class InventoryTotalPlugin extends Plugin
 	public long getTotalQty()
 	{
 		return totalQty;
+	}
+
+	public InventoryTotalRunData getRunData()
+	{
+		return runData;
 	}
 }
