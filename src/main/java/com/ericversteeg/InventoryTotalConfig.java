@@ -261,6 +261,17 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
+			position = 22,
+			keyName = "showTooltip",
+			name = "Show Tooltip",
+			description = "Configures whether or not to show the total tooltip."
+	)
+	default boolean showTooltip()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 			position = 23,
 			keyName = "ignoredItems",
 			name = "Ignored Items",

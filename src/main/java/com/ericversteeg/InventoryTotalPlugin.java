@@ -346,7 +346,57 @@ public class InventoryTotalPlugin extends Plugin
 		return eTotal;
 	}
 
-	List<InventoryTotalLedgerItem> getLedger()
+	List<InventoryTotalLedgerItem> getInventoryLedger()
+	{
+		List<InventoryTotalLedgerItem> ledgerItems = new LinkedList<>();
+
+		final ItemContainer itemContainer = overlay.getInventoryItemContainer();
+
+		if (itemContainer == null)
+		{
+			return new LinkedList<>();
+		}
+
+		final Item[] items = itemContainer.getItems();
+
+		final LinkedList<Item> allItems = new LinkedList<>(Arrays.asList(items));
+		// only add when the runepouch is in the inventory
+		if (allItems.stream().anyMatch(s -> s.getId() == RUNEPOUCH_ITEM_ID || s.getId() == DIVINE_RUNEPOUCH_ITEM_ID))
+		{
+			allItems.addAll(getRunepouchContents());
+		}
+
+		for (Item item: allItems) {
+			int itemId = item.getId();
+
+			final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+
+			String itemName = itemComposition.getName();
+			final boolean ignore = runData.ignoredItems.stream().anyMatch(s -> {
+				String lcItemName = itemName.toLowerCase();
+				String lcS = s.toLowerCase();
+				return lcItemName.contains(lcS);
+			});
+			if (ignore) { continue; }
+
+			final boolean isNoted = itemComposition.getNote() != -1;
+			final int realItemId = isNoted ? itemComposition.getLinkedNoteId() : itemId;
+
+			int itemQty = item.getQuantity();
+
+			Integer total = runData.itemPrices.get(realItemId);
+			if (realItemId == COINS || total == null)
+			{
+				total = 1;
+			}
+
+			ledgerItems.add(new InventoryTotalLedgerItem(itemName, itemQty, total));
+		}
+
+		return ledgerItems;
+	}
+
+	List<InventoryTotalLedgerItem> getProfitLossLedger()
 	{
 		Map<Integer, Integer> prices = runData.itemPrices;
 		Map<Integer, Integer> initialQtys = runData.initialItemQtys;
@@ -385,7 +435,7 @@ public class InventoryTotalPlugin extends Plugin
 
 			if (price == null)
 			{
-				price = 0;
+				price = 1;
 			}
 
 			Integer qtyDifference = qtyDifferences.get(itemId);
@@ -400,7 +450,10 @@ public class InventoryTotalPlugin extends Plugin
 			}
 			else
 			{
-				ledgerItems.add(new InventoryTotalLedgerItem(itemComposition.getName(), qtyDifference, price));
+				if (price > 0)
+				{
+					ledgerItems.add(new InventoryTotalLedgerItem(itemComposition.getName(), qtyDifference, price));
+				}
 			}
 		}
 

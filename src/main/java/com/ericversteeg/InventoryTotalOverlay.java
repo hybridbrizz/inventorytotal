@@ -348,9 +348,147 @@ class InventoryTotalOverlay extends Overlay
 
 		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
 		if (roundRectangle2D.contains(mouseX, mouseY) && plugin.getState() != InventoryTotalState.BANK
-				&& !postNewRun && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
+				&& !postNewRun && config.showTooltip())
 		{
-			renderProfitLossLedger(graphics);
+			if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
+			{
+				renderProfitLossLedger(graphics);
+			}
+			else
+			{
+				renderLedger(graphics);
+			}
+		}
+	}
+
+	private void renderLedger(Graphics2D graphics)
+	{
+		FontMetrics fontMetrics = graphics.getFontMetrics();
+
+		java.util.List<InventoryTotalLedgerItem> ledger = plugin.getInventoryLedger().stream()
+				.filter(item -> item.getQty() != 0).collect(Collectors.toList());
+
+		if (ledger.isEmpty())
+		{
+			return;
+		}
+
+		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+
+		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
+
+		String [] descriptions = ledger.stream().map(item -> {
+			String desc = item.getDescription();
+			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1 && !item.getDescription().contains("Total"))
+			{
+				desc = Math.abs(item.getQty()) + " " + desc;
+			}
+			return desc;
+		}).toArray(String[]::new);
+		Integer [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
+
+		String [] formattedPrices = Arrays.stream(prices).map(
+				p -> NumberFormat.getInstance(Locale.ENGLISH).format(p)
+		).toArray(String[]::new);
+
+		Integer [] rowWidths = IntStream.range(0, descriptions.length).mapToObj(
+				i -> fontMetrics.stringWidth(descriptions[i])
+						+ fontMetrics.stringWidth(formattedPrices[i])
+		).toArray(Integer[]::new);
+
+		Arrays.sort(rowWidths);
+
+		net.runelite.api.Point mouse = client.getMouseCanvasPosition();
+		int mouseX = mouse.getX();
+		int mouseY = mouse.getY();
+
+		int sectionPadding = 5;
+
+		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING * 2;
+		int rowH = fontMetrics.getHeight();
+
+		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPadding + 2;
+
+		int x = mouseX - rowW - 10;
+		int y = mouseY - h / 2;
+
+		int cornerRadius = 0;
+
+		graphics.setColor(Color.decode("#1b1b1b"));
+		graphics.fillRoundRect(x, y, rowW, h, cornerRadius, cornerRadius);
+
+		int borderWidth = 1;
+
+		graphics.setColor(Color.decode("#0b0b0b"));
+		graphics.setStroke(new BasicStroke(borderWidth));
+		graphics.drawRoundRect(x - borderWidth / 2, y - borderWidth / 2,
+				rowW + borderWidth / 2, h + borderWidth / 2, cornerRadius, cornerRadius);
+
+		if (descriptions.length == prices.length)
+		{
+			int yOffset = 0;
+			String prevDesc = "";
+			for (int i = 0; i < descriptions.length; i++)
+			{
+				String desc = descriptions[i];
+
+				if (!prevDesc.contains("Total") && desc.contains("Total"))
+				{
+					yOffset += sectionPadding;
+				}
+				else if (i > 0 && prices[i - 1] >= 0 && prices[i] < 0 && !prevDesc.contains("Total"))
+				{
+					yOffset += sectionPadding;
+				}
+
+				int textX = x + HORIZONTAL_PADDING;
+				int textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
+
+				TextComponent textComponent = new TextComponent();
+
+				if (desc.contains("Total") && desc.length() == 5)
+				{
+					textComponent.setColor(Color.ORANGE);
+				}
+				else if (desc.contains("Total"))
+				{
+					textComponent.setColor(Color.YELLOW);
+				}
+				else
+				{
+					textComponent.setColor(Color.decode("#FFF7E3"));
+				}
+
+				textComponent.setText(desc);
+
+				textComponent.setPosition(new Point(textX, textY));
+				textComponent.render(graphics);
+
+				prevDesc = desc;
+
+				int price = prices[i];
+
+				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
+
+				int textW = fontMetrics.stringWidth(formattedPrice);
+				textX = x + rowW - HORIZONTAL_PADDING - textW;
+				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
+
+				textComponent = new TextComponent();
+				if (price > 0)
+				{
+					textComponent.setColor(Color.GREEN);
+				}
+				else
+				{
+					textComponent.setColor(Color.WHITE);
+				}
+
+				textComponent.setText(formattedPrice);
+
+				textComponent.setPosition(new Point(textX, textY));
+				textComponent.render(graphics);
+			}
 		}
 	}
 
@@ -358,7 +496,7 @@ class InventoryTotalOverlay extends Overlay
 	{
 		FontMetrics fontMetrics = graphics.getFontMetrics();
 
-		java.util.List<InventoryTotalLedgerItem> ledger = plugin.getLedger().stream()
+		java.util.List<InventoryTotalLedgerItem> ledger = plugin.getProfitLossLedger().stream()
 				.filter(item -> item.getQty() != 0).collect(Collectors.toList());
 
 		java.util.List<InventoryTotalLedgerItem> gain = ledger.stream().filter(item -> item.getQty() > 0)
