@@ -563,7 +563,7 @@ class InventoryTotalOverlay extends Overlay
 		int rowH = fontMetrics.getHeight();
 
 		int sectionPaddingTotal = sectionPadding;
-		if (!gain.isEmpty())
+		if (!gain.isEmpty() && !loss.isEmpty())
 		{
 			sectionPaddingTotal += sectionPadding;
 		}
