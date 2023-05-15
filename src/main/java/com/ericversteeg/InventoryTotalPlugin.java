@@ -366,6 +366,8 @@ public class InventoryTotalPlugin extends Plugin
 			allItems.addAll(getRunepouchContents());
 		}
 
+		Map<Integer, Integer> qtyMap = new HashMap<>();
+
 		for (Item item: allItems) {
 			int itemId = item.getId();
 
@@ -384,13 +386,31 @@ public class InventoryTotalPlugin extends Plugin
 
 			int itemQty = item.getQuantity();
 
-			Integer total = runData.itemPrices.get(realItemId);
-			if (realItemId == COINS || total == null)
+			if (qtyMap.containsKey(realItemId))
+			{
+				qtyMap.put(realItemId, qtyMap.get(realItemId) + itemQty);
+			}
+			else
+			{
+				qtyMap.put(realItemId, itemQty);
+			}
+		}
+
+		for (Integer itemId: qtyMap.keySet())
+		{
+			final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+
+			String itemName = itemComposition.getName();
+
+			Integer qty = qtyMap.get(itemId);
+
+			Integer total = runData.itemPrices.get(itemId);
+			if (itemId == COINS || total == null)
 			{
 				total = 1;
 			}
 
-			ledgerItems.add(new InventoryTotalLedgerItem(itemName, itemQty, total));
+			ledgerItems.add(new InventoryTotalLedgerItem(itemName, qty, total));
 		}
 
 		return ledgerItems;

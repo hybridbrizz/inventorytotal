@@ -34,6 +34,7 @@ class InventoryTotalOverlay extends Overlay
 	private static final String PROFIT_LOSS_TIME_NO_HOURS_FORMAT = "%02d:%02d";
 	private static final int HORIZONTAL_PADDING = 10;
 	private static final int BANK_CLOSE_DELAY = 1200;
+	static final int COINS = ItemID.COINS_995;
 
 	private final Client client;
 	private final InventoryTotalPlugin plugin;
@@ -164,7 +165,7 @@ class InventoryTotalOverlay extends Overlay
 		updatePluginState();
 
 		boolean isInvHidden = inventoryWidget == null || inventoryWidget.isHidden();
-		if (isInvHidden || inventoryItemContainer == null)
+		if (isInvHidden)
 		{
 			return null;
 		}
@@ -348,7 +349,7 @@ class InventoryTotalOverlay extends Overlay
 
 		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
 		if (roundRectangle2D.contains(mouseX, mouseY) && plugin.getState() != InventoryTotalState.BANK
-				&& !postNewRun && config.showTooltip())
+				&& (Instant.now().toEpochMilli() - newRunTime) > (BANK_CLOSE_DELAY + 500) && config.showTooltip())
 		{
 			if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 			{
@@ -373,15 +374,20 @@ class InventoryTotalOverlay extends Overlay
 			return;
 		}
 
+		ledger = ledger.stream().sorted(Comparator.comparingInt(o ->
+				-(o.getQty() * o.getAmount()))
+		).collect(Collectors.toList());
+
 		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
 
 		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
 
 		String [] descriptions = ledger.stream().map(item -> {
 			String desc = item.getDescription();
-			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1 && !item.getDescription().contains("Total"))
+			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1
+					&& !item.getDescription().contains("Total") && !item.getDescription().contains("Coins"))
 			{
-				desc = Math.abs(item.getQty()) + " " + desc;
+				desc = NumberFormat.getInstance(Locale.ENGLISH).format(Math.abs(item.getQty())) + " " + desc;
 			}
 			return desc;
 		}).toArray(String[]::new);
@@ -527,9 +533,10 @@ class InventoryTotalOverlay extends Overlay
 
 		String [] descriptions = ledger.stream().map(item -> {
 			String desc = item.getDescription();
-			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1 && !item.getDescription().contains("Total"))
+			if (item.getQty() != 0 && Math.abs(item.getQty()) != 1
+					&& !item.getDescription().contains("Total") && !item.getDescription().contains("Coins"))
 			{
-				desc = Math.abs(item.getQty()) + " " + desc;
+				desc = NumberFormat.getInstance(Locale.ENGLISH).format(Math.abs(item.getQty())) + " " + desc;
 			}
 			return desc;
 		}).toArray(String[]::new);
