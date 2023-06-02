@@ -250,7 +250,18 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 22,
+		position = 22,
+		keyName = "showWhileInventoryNotOpen",
+		name = "Show While Inventory Tab Not Open",
+		description = "Configures whether or not the total is visible while inventory is not visible."
+	)
+	default boolean showWhileInventoryTabNotSelected()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+			position = 23,
 			keyName = "showOnEmpty",
 			name = "Show On Empty",
 			description = "Configures whether or not to show the total when inventory is empty."
@@ -261,7 +272,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 22,
+			position = 24,
 			keyName = "showTooltip",
 			name = "Show Tooltip",
 			description = "Configures whether or not to show the total tooltip."
@@ -272,7 +283,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 23,
+			position = 25,
 			keyName = "ignoredItems",
 			name = "Ignored Items",
 			description = "Ignore these items in your inventory (applies after banking)."

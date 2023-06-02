@@ -125,8 +125,8 @@ public class InventoryTotalPlugin extends Plugin
 	{
 		runData.initialItemQtys.clear();
 
-		int inventoryTotal = getInventoryTotals(true)[0];
-		int equipmentTotal = getEquipmentTotal(true);
+		long inventoryTotal = getInventoryTotals(true)[0];
+		long equipmentTotal = getEquipmentTotal(true);
 
 		runData.profitLossInitialGp = inventoryTotal + equipmentTotal;
 
@@ -155,13 +155,13 @@ public class InventoryTotalPlugin extends Plugin
 		writeSavedData();
 	}
 
-	int [] getInventoryTotals(boolean isNewRun)
+	long [] getInventoryTotals(boolean isNewRun)
 	{
 		final ItemContainer itemContainer = overlay.getInventoryItemContainer();
 
 		if (itemContainer == null)
 		{
-			return new int [2];
+			return new long [2];
 		}
 
 		final Item[] items = itemContainer.getItems();
@@ -173,8 +173,8 @@ public class InventoryTotalPlugin extends Plugin
 			allItems.addAll(getRunepouchContents());
 		}
 
-		int totalQty = 0;
-		int totalGp = 0;
+		long totalQty = 0;
+		long totalGp = 0;
 
 		for (Item item: allItems)
 		{
@@ -193,8 +193,8 @@ public class InventoryTotalPlugin extends Plugin
 			final boolean isNoted = itemComposition.getNote() != -1;
 			final int realItemId = isNoted ? itemComposition.getLinkedNoteId() : itemId;
 
-			int totalPrice;
-			int gePrice;
+			long totalPrice;
+			long gePrice;
 
 			if (runData.itemPrices.containsKey(realItemId))
 			{
@@ -205,7 +205,7 @@ public class InventoryTotalPlugin extends Plugin
 				gePrice = itemManager.getItemPrice(realItemId);
 			}
 
-			int itemQty = item.getQuantity();
+			long itemQty = item.getQuantity();
 
 			if (realItemId == COINS)
 			{
@@ -246,7 +246,7 @@ public class InventoryTotalPlugin extends Plugin
 			}
 		}
 
-		int[] totals = new int[2];
+		long[] totals = new long[2];
 
 		totals[TOTAL_GP_INDEX] = totalGp;
 		totals[TOTAL_QTY_INDEX] = totalQty;
@@ -254,7 +254,7 @@ public class InventoryTotalPlugin extends Plugin
 		return totals;
 	}
 
-	int getEquipmentTotal(boolean isNewRun)
+	long getEquipmentTotal(boolean isNewRun)
 	{
 		ItemContainer itemContainer = overlay.getEquipmentItemContainer();
 
@@ -295,13 +295,13 @@ public class InventoryTotalPlugin extends Plugin
 		int eTotal = 0;
 		for (int itemId: eIds)
 		{
-			int qty = 1;
+			long qty = 1L;
 			if (ammo != null && itemId == ammo.getId())
 			{
 				qty = ammo.getQuantity();
 			}
 
-			int gePrice;
+			long gePrice;
 
 			if (runData.itemPrices.containsKey(itemId))
 			{
@@ -312,7 +312,7 @@ public class InventoryTotalPlugin extends Plugin
 				gePrice = itemManager.getItemPrice(itemId);
 			}
 
-			int totalPrice = qty * gePrice;
+			long totalPrice = qty * gePrice;
 
 			eTotal += totalPrice;
 
@@ -404,10 +404,10 @@ public class InventoryTotalPlugin extends Plugin
 
 			Integer qty = qtyMap.get(itemId);
 
-			Integer total = runData.itemPrices.get(itemId);
+			Long total = runData.itemPrices.get(itemId);
 			if (itemId == COINS || total == null)
 			{
-				total = 1;
+				total = 1L;
 			}
 
 			ledgerItems.add(new InventoryTotalLedgerItem(itemName, qty, total));
@@ -418,11 +418,11 @@ public class InventoryTotalPlugin extends Plugin
 
 	List<InventoryTotalLedgerItem> getProfitLossLedger()
 	{
-		Map<Integer, Integer> prices = runData.itemPrices;
-		Map<Integer, Integer> initialQtys = runData.initialItemQtys;
-		Map<Integer, Integer> qtys = runData.itemQtys;
+		Map<Integer, Long> prices = runData.itemPrices;
+		Map<Integer, Long> initialQtys = runData.initialItemQtys;
+		Map<Integer, Long> qtys = runData.itemQtys;
 
-		Map<Integer, Integer> qtyDifferences = new HashMap<>();
+		Map<Integer, Long> qtyDifferences = new HashMap<>();
 
 		HashSet<Integer> combinedQtyKeys = new HashSet<>();
 		combinedQtyKeys.addAll(qtys.keySet());
@@ -430,17 +430,17 @@ public class InventoryTotalPlugin extends Plugin
 
 		for (Integer itemId: combinedQtyKeys)
 		{
-			Integer initialQty = initialQtys.get(itemId);
-			Integer qty = qtys.get(itemId);
+			Long initialQty = initialQtys.get(itemId);
+			Long qty = qtys.get(itemId);
 
 			if (initialQty == null)
 			{
-				initialQty = 0;
+				initialQty = 0l;
 			}
 
 			if (qty == null)
 			{
-				qty = 0;
+				qty = 0l;
 			}
 
 			qtyDifferences.put(itemId, qty - initialQty);
@@ -451,14 +451,14 @@ public class InventoryTotalPlugin extends Plugin
 		for (Integer itemId: qtyDifferences.keySet())
 		{
 			final ItemComposition itemComposition = itemManager.getItemComposition(itemId);
-			Integer price = prices.get(itemId);
+			Long price = prices.get(itemId);
 
 			if (price == null)
 			{
-				price = 1;
+				price = 1L;
 			}
 
-			Integer qtyDifference = qtyDifferences.get(itemId);
+			Long qtyDifference = qtyDifferences.get(itemId);
 
 			List<InventoryTotalLedgerItem> filteredList = ledgerItems.stream().filter(
 					item -> item.getDescription().equals(itemComposition.getName())).collect(Collectors.toList()

@@ -122,14 +122,14 @@ class InventoryTotalOverlay extends Overlay
 		plugin.getRunData().itemQtys.clear();
 
 		// totals
-		int [] inventoryTotals = plugin.getInventoryTotals(false);
+		long [] inventoryTotals = plugin.getInventoryTotals(false);
 
-		int inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_INDEX];
-		int equipmentTotal = plugin.getEquipmentTotal(false);
+		long inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_INDEX];
+		long equipmentTotal = plugin.getEquipmentTotal(false);
 
-		int inventoryQty = inventoryTotals[InventoryTotalPlugin.TOTAL_QTY_INDEX];
+		long inventoryQty = inventoryTotals[InventoryTotalPlugin.TOTAL_QTY_INDEX];
 
-		int totalGp = inventoryTotal;
+		long totalGp = inventoryTotal;
 		if (plugin.getState() == InventoryTotalState.RUN && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 		{
 			totalGp += equipmentTotal;
@@ -165,7 +165,7 @@ class InventoryTotalOverlay extends Overlay
 		updatePluginState();
 
 		boolean isInvHidden = inventoryWidget == null || inventoryWidget.isHidden();
-		if (isInvHidden)
+		if (isInvHidden && !config.showWhileInventoryTabNotSelected())
 		{
 			return null;
 		}
@@ -198,14 +198,13 @@ class InventoryTotalOverlay extends Overlay
 			}
 		}
 
-		renderTotal(config, graphics, plugin, inventoryWidget,
+		renderTotal(config, graphics, plugin,
 				plugin.getTotalQty(), total, totalText, runTimeText, height);
 
 		return null;
 	}
 
-	private void renderTotal(InventoryTotalConfig config, Graphics2D graphics, InventoryTotalPlugin plugin,
-							 Widget inventoryWidget, long totalQty, long total, String totalText,
+	private void renderTotal(InventoryTotalConfig config, Graphics2D graphics, InventoryTotalPlugin plugin, long totalQty, long total, String totalText,
 							 String runTimeText, int height) {
 		int imageSize = 15;
 		boolean showCoinStack = config.showCoinStack();
@@ -251,20 +250,8 @@ class InventoryTotalOverlay extends Overlay
 
 		int width = totalWidth + fixedRunTimeWidth + imageWidthWithPadding + HORIZONTAL_PADDING * 2;
 
-		int x = (inventoryWidget.getCanvasLocation().getX() + inventoryWidget.getWidth() / 2) - (width / 2);
-		switch (config.horizontalAlignment())
-		{
-			case CENTER:
-				break;
-
-			case LEFT:
-				x = inventoryWidget.getCanvasLocation().getX();
-				break;
-
-			case RIGHT:
-				x = inventoryWidget.getCanvasLocation().getX() + inventoryWidget.getWidth() - width;
-				break;
-		}
+		int x = 100;
+		int y = 100;
 
 		int xOffset = config.inventoryXOffset();
 		if (config.isInventoryXOffsetNegative())
@@ -278,7 +265,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			yOffset *= -1;
 		}
-		int y = inventoryWidget.getCanvasLocation().getY() - height - yOffset;
+		y += yOffset;
 
 		Color backgroundColor;
 		Color borderColor;
@@ -338,7 +325,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			int imageOffset = 4;
 
-			BufferedImage coinsImage = itemManager.getImage(ItemID.COINS_995, numCoins, false);
+			BufferedImage coinsImage = itemManager.getImage(COINS, numCoins, false);
 			coinsImage = ImageUtil.resizeImage(coinsImage, imageSize, imageSize);
 			graphics.drawImage(coinsImage, (x + width) - HORIZONTAL_PADDING - imageSize + imageOffset, y + 3, null);
 		}
@@ -374,11 +361,11 @@ class InventoryTotalOverlay extends Overlay
 			return;
 		}
 
-		ledger = ledger.stream().sorted(Comparator.comparingInt(o ->
+		ledger = ledger.stream().sorted(Comparator.comparingLong(o ->
 				-(o.getQty() * o.getAmount()))
 		).collect(Collectors.toList());
 
-		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+		long total = ledger.stream().mapToLong(item -> item.getQty() * item.getAmount()).sum();
 
 		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
 
@@ -391,7 +378,7 @@ class InventoryTotalOverlay extends Overlay
 			}
 			return desc;
 		}).toArray(String[]::new);
-		Integer [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
+		Long [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Long[]::new);
 
 		String [] formattedPrices = Arrays.stream(prices).map(
 				p -> NumberFormat.getInstance(Locale.ENGLISH).format(p)
@@ -472,7 +459,7 @@ class InventoryTotalOverlay extends Overlay
 
 				prevDesc = desc;
 
-				int price = prices[i];
+				long price = prices[i];
 
 				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
 
@@ -511,8 +498,8 @@ class InventoryTotalOverlay extends Overlay
 		java.util.List<InventoryTotalLedgerItem> loss = ledger.stream().filter(item -> item.getQty() < 0)
 				.collect(Collectors.toList());
 
-		gain = gain.stream().sorted(Comparator.comparingInt(o -> -(o.getQty() * o.getAmount()))).collect(Collectors.toList());
-		loss = loss.stream().sorted(Comparator.comparingInt(o -> (o.getQty() * o.getAmount()))).collect(Collectors.toList());
+		gain = gain.stream().sorted(Comparator.comparingLong(o -> -(o.getQty() * o.getAmount()))).collect(Collectors.toList());
+		loss = loss.stream().sorted(Comparator.comparingLong(o -> (o.getQty() * o.getAmount()))).collect(Collectors.toList());
 
 		ledger = new LinkedList<>();
 		ledger.addAll(gain);
@@ -523,9 +510,9 @@ class InventoryTotalOverlay extends Overlay
 			return;
 		}
 
-		int totalGain = gain.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
-		int totalLoss = loss.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
-		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
+		long totalGain = gain.stream().mapToLong(item -> item.getQty() * item.getAmount()).sum();
+		long totalLoss = loss.stream().mapToLong(item -> item.getQty() * item.getAmount()).sum();
+		long total = ledger.stream().mapToLong(item -> item.getQty() * item.getAmount()).sum();
 
 		ledger.add(new InventoryTotalLedgerItem("Total Gain", 1, totalGain));
 		ledger.add(new InventoryTotalLedgerItem("Total Loss", 1, totalLoss));
@@ -540,7 +527,7 @@ class InventoryTotalOverlay extends Overlay
 			}
 			return desc;
 		}).toArray(String[]::new);
-		Integer [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
+		Long [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Long[]::new);
 
 		String [] formattedPrices = Arrays.stream(prices).map(
 				p -> NumberFormat.getInstance(Locale.ENGLISH).format(p)
@@ -627,7 +614,7 @@ class InventoryTotalOverlay extends Overlay
 
 				prevDesc = desc;
 
-				int price = prices[i];
+				Long price = prices[i];
 
 				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
 

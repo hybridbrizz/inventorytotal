@@ -2,10 +2,10 @@ package com.ericversteeg;
 
 public class InventoryTotalLedgerItem {
     private final String description;
-    private int qty;
-    private final int amount;
+    private long qty;
+    private final long amount;
 
-    public InventoryTotalLedgerItem(String description, int qty, int amount)
+    public InventoryTotalLedgerItem(String description, long qty, long amount)
     {
         this.description = description;
         this.qty = qty;
@@ -17,17 +17,17 @@ public class InventoryTotalLedgerItem {
         return description;
     }
 
-    public int getQty()
+    public long getQty()
     {
         return qty;
     }
 
-    public int getAmount()
+    public long getAmount()
     {
         return amount;
     }
 
-    public void addQuantityDifference(int qtyDifference)
+    public void addQuantityDifference(long qtyDifference)
     {
         qty += qtyDifference;
     }
