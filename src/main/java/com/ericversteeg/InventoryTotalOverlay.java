@@ -34,6 +34,7 @@ class InventoryTotalOverlay extends Overlay
 	private static final String PROFIT_LOSS_TIME_NO_HOURS_FORMAT = "%02d:%02d";
 	private static final int HORIZONTAL_PADDING = 10;
 	private static final int BANK_CLOSE_DELAY = 1200;
+	private static final Color LEDGER_BACKGROUND_COLOR = new Color(27, 27, 27, 202);
 	static final int COINS = ItemID.COINS_995;
 
 	private final Client client;
@@ -427,7 +428,7 @@ class InventoryTotalOverlay extends Overlay
 
 		int sectionPadding = 5;
 
-		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING * 2;
+		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING + 2;
 		int rowH = fontMetrics.getHeight();
 
 		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPadding + 2;
@@ -437,7 +438,7 @@ class InventoryTotalOverlay extends Overlay
 
 		int cornerRadius = 0;
 
-		graphics.setColor(Color.decode("#1b1b1b"));
+		graphics.setColor(LEDGER_BACKGROUND_COLOR);
 		graphics.fillRoundRect(x, y, rowW, h, cornerRadius, cornerRadius);
 
 		int borderWidth = 1;
@@ -464,7 +465,7 @@ class InventoryTotalOverlay extends Overlay
 					yOffset += sectionPadding;
 				}
 
-				int textX = x + HORIZONTAL_PADDING;
+				int textX = x + HORIZONTAL_PADDING / 2 + 2;
 				int textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				TextComponent textComponent = new TextComponent();
@@ -494,7 +495,7 @@ class InventoryTotalOverlay extends Overlay
 				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
 
 				int textW = fontMetrics.stringWidth(formattedPrice);
-				textX = x + rowW - HORIZONTAL_PADDING - textW;
+				textX = x + rowW - HORIZONTAL_PADDING / 2 - textW;
 				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				textComponent = new TextComponent();
@@ -576,7 +577,7 @@ class InventoryTotalOverlay extends Overlay
 
 		int sectionPadding = 5;
 
-		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING * 2;
+		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING + 2;
 		int rowH = fontMetrics.getHeight();
 
 		int sectionPaddingTotal = sectionPadding;
@@ -592,7 +593,7 @@ class InventoryTotalOverlay extends Overlay
 
 		int cornerRadius = 0;
 
-		graphics.setColor(Color.decode("#1b1b1b"));
+		graphics.setColor(LEDGER_BACKGROUND_COLOR);
 		graphics.fillRoundRect(x, y, rowW, h, cornerRadius, cornerRadius);
 
 		int borderWidth = 1;
@@ -619,7 +620,7 @@ class InventoryTotalOverlay extends Overlay
 					yOffset += sectionPadding;
 				}
 
-				int textX = x + HORIZONTAL_PADDING;
+				int textX = x + HORIZONTAL_PADDING / 2 + 2;
 				int textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				TextComponent textComponent = new TextComponent();
@@ -649,7 +650,7 @@ class InventoryTotalOverlay extends Overlay
 				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
 
 				int textW = fontMetrics.stringWidth(formattedPrice);
-				textX = x + rowW - HORIZONTAL_PADDING - textW;
+				textX = x + rowW - HORIZONTAL_PADDING / 2 - textW;
 				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				textComponent = new TextComponent();

@@ -263,8 +263,8 @@ public interface InventoryTotalConfig extends Config
 	@ConfigItem(
 			position = 22,
 			keyName = "showTooltip",
-			name = "Show Tooltip",
-			description = "Configures whether or not to show the total tooltip."
+			name = "Show Ledger",
+			description = "Configures whether or not ledger info is shown when mousing over."
 	)
 	default boolean showTooltip()
 	{
