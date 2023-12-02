@@ -273,6 +273,17 @@ public interface InventoryTotalConfig extends Config
 
 	@ConfigItem(
 			position = 23,
+			keyName = "hideWithInventory",
+			name = "Hide With Inventory",
+			description = "Configures whether or not to hide the tooltip when the inventory is hidden."
+	)
+	default boolean hideWithInventory()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+			position = 24,
 			keyName = "ignoredItems",
 			name = "Ignored Items",
 			description = "Ignore these items in your inventory (applies after banking)."

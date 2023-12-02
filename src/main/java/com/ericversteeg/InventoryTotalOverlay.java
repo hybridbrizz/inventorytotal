@@ -53,6 +53,11 @@ class InventoryTotalOverlay extends Overlay
 	private boolean postNewRun = false;
 	private long newRunTime = 0;
 
+	private int invX = -1;
+	private int invY = -1;
+	private int invW = -1;
+	private int invH = -1;
+
 	@Inject
 	private InventoryTotalOverlay(Client client, InventoryTotalPlugin plugin, InventoryTotalConfig config, ItemManager itemManager)
 	{
@@ -164,8 +169,20 @@ class InventoryTotalOverlay extends Overlay
 	{
 		updatePluginState();
 
-		boolean isInvHidden = inventoryWidget == null || inventoryWidget.isHidden();
-		if (isInvHidden)
+		if (inventoryWidget != null)
+		{
+			invX = inventoryWidget.getCanvasLocation().getX();
+			invY = inventoryWidget.getCanvasLocation().getY();
+			invW = inventoryWidget.getWidth();
+			invH = inventoryWidget.getHeight();
+		}
+
+		if (invX < 0 || invY < 0 || invW < 0 || invH < 0)
+		{
+			return null;
+		}
+
+		if (config.hideWithInventory() && (inventoryWidget == null || inventoryWidget.isHidden()))
 		{
 			return null;
 		}
@@ -198,14 +215,14 @@ class InventoryTotalOverlay extends Overlay
 			}
 		}
 
-		renderTotal(config, graphics, plugin, inventoryWidget,
+		renderTotal(config, graphics, plugin,
 				plugin.getTotalQty(), total, totalText, runTimeText, height);
 
 		return null;
 	}
 
 	private void renderTotal(InventoryTotalConfig config, Graphics2D graphics, InventoryTotalPlugin plugin,
-							 Widget inventoryWidget, long totalQty, long total, String totalText,
+							 long totalQty, long total, String totalText,
 							 String runTimeText, int height) {
 		int imageSize = 15;
 		boolean showCoinStack = config.showCoinStack();
@@ -251,18 +268,18 @@ class InventoryTotalOverlay extends Overlay
 
 		int width = totalWidth + fixedRunTimeWidth + imageWidthWithPadding + HORIZONTAL_PADDING * 2;
 
-		int x = (inventoryWidget.getCanvasLocation().getX() + inventoryWidget.getWidth() / 2) - (width / 2);
+		int x = (invX + invW / 2) - (width / 2);
 		switch (config.horizontalAlignment())
 		{
 			case CENTER:
 				break;
 
 			case LEFT:
-				x = inventoryWidget.getCanvasLocation().getX();
+				x = invX;
 				break;
 
 			case RIGHT:
-				x = inventoryWidget.getCanvasLocation().getX() + inventoryWidget.getWidth() - width;
+				x = invX + invW - width;
 				break;
 		}
 
@@ -278,7 +295,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			yOffset *= -1;
 		}
-		int y = inventoryWidget.getCanvasLocation().getY() - height - yOffset;
+		int y = invY - height - yOffset;
 
 		Color backgroundColor;
 		Color borderColor;
