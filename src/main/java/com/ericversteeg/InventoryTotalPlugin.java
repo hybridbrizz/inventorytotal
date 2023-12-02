@@ -5,12 +5,17 @@ import com.google.inject.Provides;
 import net.runelite.api.*;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.config.Keybind;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.input.KeyListener;
+import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
+import net.runelite.client.util.HotkeyListener;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -55,6 +60,9 @@ public class InventoryTotalPlugin extends Plugin
 	@Inject
 	private Gson gson;
 
+	@Inject
+	private KeyManager keyManager;
+
 	private String profileKey = "";
 
 	private InventoryTotalRunData runData;
@@ -73,6 +81,9 @@ public class InventoryTotalPlugin extends Plugin
 
 	private long lastWriteSaveTime = 0;
 
+	private InventoryTotalMode plToggleOverride = null;
+	private KeyListener plToggleKeyListener;
+
 	// from ClueScrollPlugin
 	private static final int[] RUNEPOUCH_AMOUNT_VARBITS = {
 			Varbits.RUNE_POUCH_AMOUNT1, Varbits.RUNE_POUCH_AMOUNT2, Varbits.RUNE_POUCH_AMOUNT3, Varbits.RUNE_POUCH_AMOUNT4
@@ -87,12 +98,16 @@ public class InventoryTotalPlugin extends Plugin
 		overlayManager.add(overlay);
 
 		runData = new InventoryTotalRunData();
+
+		registerPLToggleKey();
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
 		overlayManager.remove(overlay);
+
+		unregisterPLToggleKey();
 	}
 
 	@Subscribe
@@ -109,6 +124,51 @@ public class InventoryTotalPlugin extends Plugin
 	InventoryTotalConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(InventoryTotalConfig.class);
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged config)
+	{
+		if (config.getGroup().equals(InventoryTotalConfig.GROUP))
+		{
+			if (config.getKey().equals("enableProfitLoss"))
+			{
+				plToggleOverride = null;
+			}
+			else if (config.getKey().equals("profitLossToggleKey"))
+			{
+				unregisterPLToggleKey();
+				registerPLToggleKey();
+			}
+		}
+	}
+
+	private void registerPLToggleKey()
+	{
+		plToggleKeyListener = new HotkeyListener(() -> config.profitLossToggleKey())
+		{
+			@Override
+			public void hotkeyPressed()
+			{
+				if (mode == InventoryTotalMode.TOTAL)
+				{
+					plToggleOverride = InventoryTotalMode.PROFIT_LOSS;
+				}
+				else
+				{
+					plToggleOverride = InventoryTotalMode.TOTAL;
+				}
+			}
+		};
+		keyManager.registerKeyListener(plToggleKeyListener);
+	}
+
+	private void unregisterPLToggleKey()
+	{
+		if (plToggleKeyListener != null)
+		{
+			keyManager.unregisterKeyListener(plToggleKeyListener);
+		}
 	}
 
 	void onNewRun()
@@ -622,5 +682,9 @@ public class InventoryTotalPlugin extends Plugin
 	public InventoryTotalRunData getRunData()
 	{
 		return runData;
+	}
+
+	public InventoryTotalMode getPLToggleOverride() {
+		return plToggleOverride;
 	}
 }

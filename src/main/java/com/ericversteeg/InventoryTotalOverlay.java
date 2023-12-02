@@ -79,11 +79,22 @@ class InventoryTotalOverlay extends Overlay
 		inventoryItemContainer = client.getItemContainer(InventoryID.INVENTORY);
 		equipmentItemContainer = client.getItemContainer(InventoryID.EQUIPMENT);
 
-		if (config.enableProfitLoss())
+		if (plugin.getPLToggleOverride() == null)
+		{
+			if (config.enableProfitLoss())
+			{
+				plugin.setMode(InventoryTotalMode.PROFIT_LOSS);
+			}
+			else
+			{
+				plugin.setMode(InventoryTotalMode.TOTAL);
+			}
+		}
+		else if (plugin.getPLToggleOverride() == InventoryTotalMode.PROFIT_LOSS)
 		{
 			plugin.setMode(InventoryTotalMode.PROFIT_LOSS);
 		}
-		else
+		else if (plugin.getPLToggleOverride() == InventoryTotalMode.TOTAL)
 		{
 			plugin.setMode(InventoryTotalMode.TOTAL);
 		}

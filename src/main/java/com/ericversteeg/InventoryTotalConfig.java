@@ -1,11 +1,10 @@
 package com.ericversteeg;
 
-import net.runelite.client.config.Alpha;
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.*;
 
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 @ConfigGroup(InventoryTotalConfig.GROUP)
 public interface InventoryTotalConfig extends Config
@@ -21,6 +20,17 @@ public interface InventoryTotalConfig extends Config
 	default boolean enableProfitLoss()
 	{
 		return false;
+	}
+
+	@ConfigItem(
+			position = 0,
+			keyName = "profitLossToggleKey",
+			name = "Switch Mode Key",
+			description = "Switch between Total & Profit / Loss modes."
+	)
+	default Keybind profitLossToggleKey()
+	{
+		return new Keybind(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK);
 	}
 
 	@Alpha
