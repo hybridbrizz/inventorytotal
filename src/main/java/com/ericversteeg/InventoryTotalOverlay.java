@@ -442,7 +442,7 @@ class InventoryTotalOverlay extends Overlay
 		int rowW = rowWidths[rowWidths.length - 1] + 20 + HORIZONTAL_PADDING + 2;
 		int rowH = fontMetrics.getHeight();
 
-		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPadding + 2;
+		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPadding + 1;
 
 		int x = mouseX - rowW - 10;
 		int y = mouseY - h / 2;
@@ -597,7 +597,7 @@ class InventoryTotalOverlay extends Overlay
 			sectionPaddingTotal += sectionPadding;
 		}
 
-		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPaddingTotal + 2;
+		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPaddingTotal + 1;
 
 		int x = mouseX - rowW - 10;
 		int y = mouseY - h / 2;
