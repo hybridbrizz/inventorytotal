@@ -4,8 +4,8 @@ import net.runelite.api.Client;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ItemID;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.overlay.Overlay;
@@ -74,7 +74,7 @@ class InventoryTotalOverlay extends Overlay
 
 	void updatePluginState()
 	{
-		inventoryWidget = client.getWidget(WidgetInfo.INVENTORY);
+		inventoryWidget = client.getWidget(ComponentID.INVENTORY_CONTAINER);
 
 		inventoryItemContainer = client.getItemContainer(InventoryID.INVENTORY);
 		equipmentItemContainer = client.getItemContainer(InventoryID.EQUIPMENT);
@@ -105,8 +105,8 @@ class InventoryTotalOverlay extends Overlay
 		{
 			Widget [] altInventoryWidgets = new Widget[]
 			{
-				client.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER),
-				client.getWidget(WidgetInfo.DEPOSIT_BOX_INVENTORY_ITEMS_CONTAINER)
+				client.getWidget(ComponentID.BANK_INVENTORY_ITEM_CONTAINER),
+				client.getWidget(ComponentID.DEPOSIT_BOX_INVENTORY_ITEM_CONTAINER)
 			};
 
 			for (Widget altInventoryWidget: altInventoryWidgets)
