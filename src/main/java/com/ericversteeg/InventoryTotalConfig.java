@@ -296,7 +296,7 @@ public interface InventoryTotalConfig extends Config
 			position = 24,
 			keyName = "ignoredItems",
 			name = "Ignored Items",
-			description = "Ignore these items in your inventory (applies after banking)."
+			description = "Ignore these items in your inventory."
 	)
 	default String ignoredItems() {
 		return "Cannon barrels, Cannon base, Cannon furnace, Cannon stand";

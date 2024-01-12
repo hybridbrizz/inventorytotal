@@ -139,6 +139,12 @@ public class InventoryTotalPlugin extends Plugin
 			{
 				unregisterPLToggleKey();
 				registerPLToggleKey();
+			} else if (config.getKey().equals("ignoredItems"))
+			{
+				// update the runData if it's already initialized
+				if (runData != null) {
+					runData.ignoredItems = getIgnoredItems();
+				}
 			}
 		}
 	}
