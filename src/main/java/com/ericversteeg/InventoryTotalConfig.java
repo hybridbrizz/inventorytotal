@@ -13,6 +13,17 @@ public interface InventoryTotalConfig extends Config
 
 	@ConfigItem(
 			position = 0,
+			keyName = "itemPricesKey",
+			name = "Prices",
+			description = "Configures the price type."
+	)
+	default InventoryTotalPriceType priceType()
+	{
+		return InventoryTotalPriceType.GRAND_EXCHANGE;
+	}
+
+	@ConfigItem(
+			position = 0,
 			keyName = "enableProfitLoss",
 			name = "Profit / Loss",
 			description = "Configures whether or not current total is relative to start amount."

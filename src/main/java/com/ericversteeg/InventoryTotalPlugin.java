@@ -30,8 +30,9 @@ import java.util.stream.Collectors;
 public class InventoryTotalPlugin extends Plugin
 {
 	static final int COINS = ItemID.COINS_995;
-	static final int TOTAL_GP_INDEX = 0;
-	static final int TOTAL_QTY_INDEX = 1;
+	static final int TOTAL_GP_GE_INDEX = 0;
+	static final int TOTAL_GP_HA_INDEX = 1;
+	static final int TOTAL_QTY_INDEX = 2;
 	static final int NO_PROFIT_LOSS_TIME = -1;
 	static final int RUNEPOUCH_ITEM_ID = 12791;
 	static final int DIVINE_RUNEPOUCH_ITEM_ID = 27281;
@@ -74,8 +75,6 @@ public class InventoryTotalPlugin extends Plugin
 
 	private long totalGp = 0;
 	private long totalQty = 0;
-
-	private long initialGp = 0;
 
 	private long runStartTime = 0;
 
@@ -191,19 +190,17 @@ public class InventoryTotalPlugin extends Plugin
 	{
 		runData.initialItemQtys.clear();
 
-		int inventoryTotal = getInventoryTotals(true)[0];
-		int equipmentTotal = getEquipmentTotal(true);
+		int [] inventoryTotals = getInventoryTotals(true);
+		int [] equipmentTotals = getEquipmentTotals(true);
+
+		int inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_GE_INDEX];
+		int inventoryTotalHA = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_HA_INDEX];
+
+		int equipmentTotal = equipmentTotals[0];
+		int equipmentTotalHA = equipmentTotals[1];
 
 		runData.profitLossInitialGp = inventoryTotal + equipmentTotal;
-
-		if (mode == InventoryTotalMode.PROFIT_LOSS)
-		{
-			initialGp = runData.profitLossInitialGp;
-		}
-		else
-		{
-			initialGp = 0;
-		}
+		runData.profitLossInitialGpHA = inventoryTotalHA + equipmentTotalHA;
 
 		writeSavedData();
 
@@ -213,9 +210,9 @@ public class InventoryTotalPlugin extends Plugin
 	void onBank()
 	{
 		runData.profitLossInitialGp = 0;
+		runData.profitLossInitialGpHA = 0;
 		runData.itemPrices.clear();
 
-		initialGp = 0;
 		runStartTime = 0;
 
 		writeSavedData();
@@ -241,6 +238,7 @@ public class InventoryTotalPlugin extends Plugin
 
 		int totalQty = 0;
 		int totalGp = 0;
+		int totalGpHA = 0;
 
 		for (Item item: allItems)
 		{
@@ -260,7 +258,9 @@ public class InventoryTotalPlugin extends Plugin
 			final int realItemId = isNoted ? itemComposition.getLinkedNoteId() : itemId;
 
 			int totalPrice;
+			int totalPriceHA;
 			int gePrice;
+			int haPrice;
 
 			if (runData.itemPrices.containsKey(realItemId))
 			{
@@ -269,6 +269,15 @@ public class InventoryTotalPlugin extends Plugin
 			else
 			{
 				gePrice = itemManager.getItemPrice(realItemId);
+			}
+
+			if (runData.itemPricesHA.containsKey(realItemId))
+			{
+				haPrice = runData.itemPricesHA.get(realItemId);
+			}
+			else
+			{
+				haPrice = itemComposition.getHaPrice();
 			}
 
 			int itemQty = item.getQuantity();
@@ -282,12 +291,27 @@ public class InventoryTotalPlugin extends Plugin
 				totalPrice = itemQty * gePrice;
 			}
 
+			if (realItemId == COINS)
+			{
+				totalPriceHA = itemQty;
+			}
+			else
+			{
+				totalPriceHA = itemQty * haPrice;
+			}
+
 			totalGp += totalPrice;
+			totalGpHA += totalPriceHA;
 			totalQty += itemQty;
 
 			if (realItemId != COINS && !runData.itemPrices.containsKey(realItemId))
 			{
 				runData.itemPrices.put(realItemId, gePrice);
+			}
+
+			if (realItemId != COINS && !runData.itemPricesHA.containsKey(realItemId))
+			{
+				runData.itemPricesHA.put(realItemId, haPrice);
 			}
 
 			if (isNewRun)
@@ -312,21 +336,22 @@ public class InventoryTotalPlugin extends Plugin
 			}
 		}
 
-		int[] totals = new int[2];
+		int[] totals = new int[3];
 
-		totals[TOTAL_GP_INDEX] = totalGp;
+		totals[TOTAL_GP_GE_INDEX] = totalGp;
+		totals[TOTAL_GP_HA_INDEX] = totalGpHA;
 		totals[TOTAL_QTY_INDEX] = totalQty;
 
 		return totals;
 	}
 
-	int getEquipmentTotal(boolean isNewRun)
+	int [] getEquipmentTotals(boolean isNewRun)
 	{
 		ItemContainer itemContainer = overlay.getEquipmentItemContainer();
 
 		if (itemContainer == null)
 		{
-			return 0;
+			return new int [] {0, 0};
 		}
 
 		Item ring = itemContainer.getItem(EquipmentInventorySlot.RING.getSlotIdx());
@@ -359,6 +384,7 @@ public class InventoryTotalPlugin extends Plugin
 		}
 
 		int eTotal = 0;
+		int eTotalHA = 0;
 		for (int itemId: eIds)
 		{
 			int qty = 1;
@@ -368,6 +394,7 @@ public class InventoryTotalPlugin extends Plugin
 			}
 
 			int gePrice;
+			int haPrice;
 
 			if (runData.itemPrices.containsKey(itemId))
 			{
@@ -378,13 +405,30 @@ public class InventoryTotalPlugin extends Plugin
 				gePrice = itemManager.getItemPrice(itemId);
 			}
 
+			if (runData.itemPricesHA.containsKey(itemId))
+			{
+				haPrice = runData.itemPricesHA.get(itemId);
+			}
+			else
+			{
+				ItemComposition itemComposition = itemManager.getItemComposition(itemId);
+				haPrice = itemComposition.getHaPrice();
+			}
+
 			int totalPrice = qty * gePrice;
+			int totalPriceHA = qty * haPrice;
 
 			eTotal += totalPrice;
+			eTotalHA += totalPriceHA;
 
 			if (!runData.itemPrices.containsKey(itemId))
 			{
 				runData.itemPrices.put(itemId, gePrice);
+			}
+
+			if (!runData.itemPricesHA.containsKey(itemId))
+			{
+				runData.itemPricesHA.put(itemId, haPrice);
 			}
 
 			if (isNewRun)
@@ -409,7 +453,7 @@ public class InventoryTotalPlugin extends Plugin
 			}
 		}
 
-		return eTotal;
+		return new int [] {eTotal, eTotalHA};
 	}
 
 	List<InventoryTotalLedgerItem> getInventoryLedger()
@@ -470,7 +514,16 @@ public class InventoryTotalPlugin extends Plugin
 
 			Integer qty = qtyMap.get(itemId);
 
-			Integer total = runData.itemPrices.get(itemId);
+			Integer total;
+			if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
+			{
+				total = runData.itemPrices.get(itemId);
+			}
+			else
+			{
+				total = runData.itemPricesHA.get(itemId);
+			}
+
 			if (itemId == COINS || total == null)
 			{
 				total = 1;
@@ -484,7 +537,16 @@ public class InventoryTotalPlugin extends Plugin
 
 	List<InventoryTotalLedgerItem> getProfitLossLedger()
 	{
-		Map<Integer, Integer> prices = runData.itemPrices;
+		Map<Integer, Integer> prices;
+		if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
+		{
+			prices = runData.itemPrices;
+		}
+		else
+		{
+			prices = runData.itemPricesHA;
+		}
+
 		Map<Integer, Integer> initialQtys = runData.initialItemQtys;
 		Map<Integer, Integer> qtys = runData.itemQtys;
 
@@ -627,16 +689,6 @@ public class InventoryTotalPlugin extends Plugin
 	void setMode(InventoryTotalMode mode)
 	{
 		this.mode = mode;
-
-		switch(mode)
-		{
-			case TOTAL:
-				initialGp = 0;
-				break;
-			case PROFIT_LOSS:
-				initialGp = runData.profitLossInitialGp;
-				break;
-		}
 	}
 
 	public InventoryTotalMode getMode()
@@ -662,17 +714,23 @@ public class InventoryTotalPlugin extends Plugin
 
 	public long getProfitGp()
 	{
-		return totalGp - initialGp;
+		if (mode == InventoryTotalMode.TOTAL)
+		{
+			return totalGp;
+		}
+		else if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
+		{
+			return totalGp - runData.profitLossInitialGp;
+		}
+		else
+		{
+			return totalGp - runData.profitLossInitialGpHA;
+		}
 	}
 
 	void setTotalGp(long totalGp)
 	{
 		this.totalGp = totalGp;
-	}
-
-	public long getTotalGp()
-	{
-		return totalGp;
 	}
 
 	void setTotalQty(long totalQty)

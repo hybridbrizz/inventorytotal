@@ -140,16 +140,36 @@ class InventoryTotalOverlay extends Overlay
 
 		// totals
 		int [] inventoryTotals = plugin.getInventoryTotals(false);
+		int [] equipmentTotals = plugin.getEquipmentTotals(false);
 
-		int inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_INDEX];
-		int equipmentTotal = plugin.getEquipmentTotal(false);
+		int inventoryTotal = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_GE_INDEX];
+		int equipmentTotal = equipmentTotals[0];
+
+		int inventoryTotalHA = inventoryTotals[InventoryTotalPlugin.TOTAL_GP_HA_INDEX];
+		int equipmentTotalHA = equipmentTotals[1];
 
 		int inventoryQty = inventoryTotals[InventoryTotalPlugin.TOTAL_QTY_INDEX];
 
-		int totalGp = inventoryTotal;
+		int totalGp = 0;
+		if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
+		{
+			totalGp += inventoryTotal;
+		}
+		else
+		{
+			totalGp += inventoryTotalHA;
+		}
+
 		if (plugin.getState() == InventoryTotalState.RUN && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 		{
-			totalGp += equipmentTotal;
+			if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
+			{
+				totalGp += equipmentTotal;
+			}
+			else
+			{
+				totalGp += equipmentTotalHA;
+			}
 		}
 
 		plugin.setTotalGp(totalGp);
@@ -223,7 +243,7 @@ class InventoryTotalOverlay extends Overlay
 			}
 			else
 			{
-				totalText = getTotalText(plugin.getTotalGp());
+				totalText = getTotalText(plugin.getProfitGp());
 			}
 		}
 
