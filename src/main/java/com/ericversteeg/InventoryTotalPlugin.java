@@ -347,41 +347,16 @@ public class InventoryTotalPlugin extends Plugin
 
 	int [] getEquipmentTotals(boolean isNewRun)
 	{
-		ItemContainer itemContainer = overlay.getEquipmentItemContainer();
+		final ItemContainer itemContainer = client.getItemContainer(InventoryID.EQUIPMENT);
 
 		if (itemContainer == null)
 		{
 			return new int [] {0, 0};
 		}
 
-		Item ring = itemContainer.getItem(EquipmentInventorySlot.RING.getSlotIdx());
 		Item ammo = itemContainer.getItem(EquipmentInventorySlot.AMMO.getSlotIdx());
 
-		Player player = client.getLocalPlayer();
-
-		int [] ids = player.getPlayerComposition().getEquipmentIds();
-
-		LinkedList<Integer> eIds = new LinkedList<>();
-
-		for (int id: ids)
-		{
-			if (id < 512)
-			{
-				continue;
-			}
-
-			eIds.add(id - 512);
-		}
-
-		if (ring != null)
-		{
-			eIds.add(ring.getId());
-		}
-
-		if (ammo != null)
-		{
-			eIds.add(ammo.getId());
-		}
+		List<Integer> eIds = getEquipmentIds();
 
 		int eTotal = 0;
 		int eTotalHA = 0;
@@ -454,6 +429,97 @@ public class InventoryTotalPlugin extends Plugin
 		}
 
 		return new int [] {eTotal, eTotalHA};
+	}
+
+	private List<Integer> getEquipmentIds()
+	{
+		List<Item> equipment = getEquipment();
+
+		return equipment
+				.stream()
+				.map(Item::getId)
+				.collect(Collectors.toList());
+	}
+
+	private List<Item> getEquipment()
+	{
+		final ItemContainer equipment = client.getItemContainer(InventoryID.EQUIPMENT);
+
+		if (equipment == null)
+		{
+			return new ArrayList<>();
+		}
+
+		Item head = equipment.getItem(EquipmentInventorySlot.HEAD.getSlotIdx());
+		Item cape = equipment.getItem(EquipmentInventorySlot.CAPE.getSlotIdx());
+		Item amulet = equipment.getItem(EquipmentInventorySlot.AMULET.getSlotIdx());
+		Item ammo = equipment.getItem(EquipmentInventorySlot.AMMO.getSlotIdx());
+		Item weapon = equipment.getItem(EquipmentInventorySlot.WEAPON.getSlotIdx());
+		Item body = equipment.getItem(EquipmentInventorySlot.BODY.getSlotIdx());
+		Item shield = equipment.getItem(EquipmentInventorySlot.SHIELD.getSlotIdx());
+		Item legs = equipment.getItem(EquipmentInventorySlot.LEGS.getSlotIdx());
+		Item gloves = equipment.getItem(EquipmentInventorySlot.GLOVES.getSlotIdx());
+		Item boots = equipment.getItem(EquipmentInventorySlot.BOOTS.getSlotIdx());
+		Item ring = equipment.getItem(EquipmentInventorySlot.RING.getSlotIdx());
+
+		List<Item> items = new ArrayList<Item>();
+
+		if (head != null)
+		{
+			items.add(head);
+		}
+
+		if (cape != null)
+		{
+			items.add(cape);
+		}
+
+		if (amulet != null)
+		{
+			items.add(amulet);
+		}
+
+		if (ammo != null)
+		{
+			items.add(ammo);
+		}
+
+		if (weapon != null)
+		{
+			items.add(weapon);
+		}
+
+		if (body != null)
+		{
+			items.add(body);
+		}
+
+		if (shield != null)
+		{
+			items.add(shield);
+		}
+
+		if (legs != null)
+		{
+			items.add(legs);
+		}
+
+		if (gloves != null)
+		{
+			items.add(gloves);
+		}
+
+		if (boots != null)
+		{
+			items.add(boots);
+		}
+
+		if (ring != null)
+		{
+			items.add(ring);
+		}
+
+		return items;
 	}
 
 	List<InventoryTotalLedgerItem> getInventoryLedger()
