@@ -135,7 +135,8 @@ class InventoryTotalOverlay extends Overlay
 		}
 
 		// before totals
-		boolean newRun = plugin.getPreviousState() == InventoryTotalState.BANK && plugin.getState() == InventoryTotalState.RUN;
+		boolean newRun = (plugin.getPreviousState() == InventoryTotalState.BANK
+				&& plugin.getState() == InventoryTotalState.RUN) || plugin.isManualNewRun();
 		plugin.getRunData().itemQtys.clear();
 
 		// totals

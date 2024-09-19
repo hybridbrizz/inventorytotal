@@ -5,7 +5,6 @@ import com.google.inject.Provides;
 import net.runelite.api.*;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.config.Keybind;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
@@ -82,6 +81,9 @@ public class InventoryTotalPlugin extends Plugin
 
 	private InventoryTotalMode plToggleOverride = null;
 	private KeyListener plToggleKeyListener;
+	private KeyListener newRunKeyListener;
+
+	private boolean manualNewRun = false;
 
 	// from ClueScrollPlugin
 	private static final int[] RUNEPOUCH_AMOUNT_VARBITS = {
@@ -98,7 +100,7 @@ public class InventoryTotalPlugin extends Plugin
 
 		runData = new InventoryTotalRunData();
 
-		registerPLToggleKey();
+		registerKeys();
 	}
 
 	@Override
@@ -106,7 +108,7 @@ public class InventoryTotalPlugin extends Plugin
 	{
 		overlayManager.remove(overlay);
 
-		unregisterPLToggleKey();
+		unregisterKeys();
 	}
 
 	@Subscribe
@@ -136,8 +138,8 @@ public class InventoryTotalPlugin extends Plugin
 			}
 			else if (config.getKey().equals("profitLossToggleKey"))
 			{
-				unregisterPLToggleKey();
-				registerPLToggleKey();
+				unregisterKeys();
+				registerKeys();
 			} else if (config.getKey().equals("ignoredItems"))
 			{
 				// update the runData if it's already initialized
@@ -148,8 +150,9 @@ public class InventoryTotalPlugin extends Plugin
 		}
 	}
 
-	private void registerPLToggleKey()
+	private void registerKeys()
 	{
+		// switch mode
 		plToggleKeyListener = new HotkeyListener(() -> config.profitLossToggleKey())
 		{
 			@Override
@@ -166,13 +169,28 @@ public class InventoryTotalPlugin extends Plugin
 			}
 		};
 		keyManager.registerKeyListener(plToggleKeyListener);
+
+		// new run
+		newRunKeyListener = new HotkeyListener(() -> config.newRunKey())
+		{
+			@Override
+			public void hotkeyPressed()
+			{
+				manualNewRun = true;
+			}
+		};
+		keyManager.registerKeyListener(newRunKeyListener);
 	}
 
-	private void unregisterPLToggleKey()
+	private void unregisterKeys()
 	{
 		if (plToggleKeyListener != null)
 		{
 			keyManager.unregisterKeyListener(plToggleKeyListener);
+		}
+		if (newRunKeyListener != null)
+		{
+			keyManager.unregisterKeyListener(newRunKeyListener);
 		}
 	}
 
@@ -814,7 +832,18 @@ public class InventoryTotalPlugin extends Plugin
 		return runData;
 	}
 
-	public InventoryTotalMode getPLToggleOverride() {
+	public InventoryTotalMode getPLToggleOverride()
+	{
 		return plToggleOverride;
+	}
+
+	public boolean isManualNewRun()
+	{
+		if (manualNewRun)
+		{
+			manualNewRun = false;
+			return true;
+		}
+		return false;
 	}
 }

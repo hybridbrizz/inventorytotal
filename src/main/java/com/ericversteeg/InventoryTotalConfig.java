@@ -12,7 +12,7 @@ public interface InventoryTotalConfig extends Config
 	String GROUP = "inventorytotal";
 
 	@ConfigItem(
-			position = 0,
+			position = -1,
 			keyName = "itemPricesKey",
 			name = "Prices",
 			description = "Configures the price type."
@@ -23,7 +23,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 0,
+			position = -1,
 			keyName = "enableProfitLoss",
 			name = "Profit / Loss",
 			description = "Configures whether or not current total is relative to start amount."
@@ -34,7 +34,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 0,
+			position = -1,
 			keyName = "profitLossToggleKey",
 			name = "Switch Mode Key",
 			description = "Switch between Total & Profit / Loss modes."
@@ -42,6 +42,17 @@ public interface InventoryTotalConfig extends Config
 	default Keybind profitLossToggleKey()
 	{
 		return new Keybind(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK);
+	}
+
+	@ConfigItem(
+			position = 0,
+			keyName = "newRunKey",
+			name = "New Run Key",
+			description = "Starts a new run and resets the ledger."
+	)
+	default Keybind newRunKey()
+	{
+		return new Keybind(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK);
 	}
 
 	@Alpha
