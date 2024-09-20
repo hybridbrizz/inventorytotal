@@ -47,8 +47,8 @@ public interface InventoryTotalConfig extends Config
 	@ConfigItem(
 			position = 0,
 			keyName = "newRunKey",
-			name = "New Run Key",
-			description = "Starts a new run and resets the ledger."
+			name = "Reset Key",
+			description = "Resets the ledger and timer."
 	)
 	default Keybind newRunKey()
 	{
