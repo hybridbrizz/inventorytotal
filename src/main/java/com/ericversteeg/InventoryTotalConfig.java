@@ -315,6 +315,14 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
+			position = 23,
+			keyName = "newRunAfterBanking",
+			name = "Reset After Banking",
+			description = "Resets the ledger and timer after banking."
+	)
+	default boolean newRunAfterBanking() { return true; }
+
+	@ConfigItem(
 			position = 24,
 			keyName = "ignoredItems",
 			name = "Ignored Items",

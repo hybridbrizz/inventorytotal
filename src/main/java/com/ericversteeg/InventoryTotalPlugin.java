@@ -176,7 +176,10 @@ public class InventoryTotalPlugin extends Plugin
 			@Override
 			public void hotkeyPressed()
 			{
-				manualNewRun = true;
+				if (state != InventoryTotalState.BANK)
+				{
+					manualNewRun = true;
+				}
 			}
 		};
 		keyManager.registerKeyListener(newRunKeyListener);
@@ -227,6 +230,11 @@ public class InventoryTotalPlugin extends Plugin
 
 	void onBank()
 	{
+		if (!config.newRunAfterBanking())
+		{
+			return;
+		}
+
 		runData.profitLossInitialGp = 0;
 		runData.profitLossInitialGpHA = 0;
 		runData.itemPrices.clear();

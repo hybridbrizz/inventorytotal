@@ -136,7 +136,8 @@ class InventoryTotalOverlay extends Overlay
 
 		// before totals
 		boolean newRun = (plugin.getPreviousState() == InventoryTotalState.BANK
-				&& plugin.getState() == InventoryTotalState.RUN) || plugin.isManualNewRun();
+				&& plugin.getState() == InventoryTotalState.RUN
+				&& config.newRunAfterBanking()) || plugin.isManualNewRun();
 		plugin.getRunData().itemQtys.clear();
 
 		// totals
@@ -161,7 +162,8 @@ class InventoryTotalOverlay extends Overlay
 			totalGp += inventoryTotalHA;
 		}
 
-		if (plugin.getState() == InventoryTotalState.RUN && plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
+		if ((plugin.getState() == InventoryTotalState.RUN || !config.newRunAfterBanking())
+				&& plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 		{
 			if (config.priceType() == InventoryTotalPriceType.GRAND_EXCHANGE)
 			{
@@ -334,7 +336,8 @@ class InventoryTotalOverlay extends Overlay
 		Color borderColor;
 		Color textColor;
 
-		if (plugin.getState() == InventoryTotalState.BANK || plugin.getMode() == InventoryTotalMode.TOTAL) {
+		if ((plugin.getState() == InventoryTotalState.BANK && config.newRunAfterBanking())
+				|| plugin.getMode() == InventoryTotalMode.TOTAL) {
 			backgroundColor = config.totalColor();
 			borderColor = config.borderColor();
 			textColor = config.textColor();
@@ -398,7 +401,7 @@ class InventoryTotalOverlay extends Overlay
 		int mouseY = mouse.getY();
 
 		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
-		if (roundRectangle2D.contains(mouseX, mouseY) && plugin.getState() != InventoryTotalState.BANK
+		if (roundRectangle2D.contains(mouseX, mouseY) && (plugin.getState() != InventoryTotalState.BANK || !config.newRunAfterBanking())
 				&& (Instant.now().toEpochMilli() - newRunTime) > (BANK_CLOSE_DELAY + 500) && config.showTooltip())
 		{
 			if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
