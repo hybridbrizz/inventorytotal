@@ -61,6 +61,12 @@ class InventoryTotalOverlay extends Overlay
 
 	private boolean lastRenderShowingTooltip = false;
 
+	private Widget viewportWidget;
+	private int canvasX = 0;
+	private int canvasY = 0;
+	private int canvasWidth = 0;
+	private int canvasHeight = 0;
+
 	@Inject
 	private InventoryTotalOverlay(Client client, InventoryTotalPlugin plugin, InventoryTotalConfig config, ItemManager itemManager)
 	{
@@ -72,6 +78,22 @@ class InventoryTotalOverlay extends Overlay
 		this.config = config;
 
 		this.itemManager = itemManager;
+	}
+
+	private Widget getViewportWidget()
+	{
+		Widget widget;
+
+		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_INTERFACE_CONTAINER);
+		if (widget != null) return widget;
+
+		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INTERFACE_CONTAINER);
+		if (widget != null) return widget;
+
+		widget = client.getWidget(ComponentID.FIXED_VIEWPORT_INTERFACE_CONTAINER);
+		if (widget != null) return widget;
+
+		return client.getWidget(ComponentID.BANK_INVENTORY_ITEM_CONTAINER);
 	}
 
 	void updatePluginState()
@@ -205,6 +227,12 @@ class InventoryTotalOverlay extends Overlay
 	public Dimension render(Graphics2D graphics)
 	{
 		updatePluginState();
+
+		viewportWidget = getViewportWidget();
+		canvasX = viewportWidget.getCanvasLocation().getX();
+		canvasY = viewportWidget.getCanvasLocation().getY();
+		canvasWidth = viewportWidget.getWidth() + 28;
+		canvasHeight = viewportWidget.getHeight() + 41;
 
 		if (inventoryWidget != null)
 		{
@@ -482,7 +510,24 @@ class InventoryTotalOverlay extends Overlay
 		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPadding + 1;
 
 		int x = mouseX - rowW - 10;
+		if (x + rowW > canvasX + canvasWidth - 5)
+		{
+			x = canvasX + canvasWidth - 5 - rowW;
+		}
+		else if (x < 5)
+		{
+			x = 5;
+		}
+
 		int y = mouseY - h / 2;
+		if (y + h > canvasY + canvasHeight - 10)
+		{
+			y = canvasY + canvasHeight - 10 - h;
+		}
+		else if (y < 5)
+		{
+			y = 5;
+		}
 
 		int cornerRadius = 0;
 
@@ -637,7 +682,24 @@ class InventoryTotalOverlay extends Overlay
 		int h = descriptions.length * rowH + TEXT_Y_OFFSET / 2 + sectionPaddingTotal + 1;
 
 		int x = mouseX - rowW - 10;
+		if (x + rowW > canvasX + canvasWidth - 5)
+		{
+			x = canvasX + canvasWidth - 5 - rowW;
+		}
+		else if (x < 5)
+		{
+			x = 5;
+		}
+
 		int y = mouseY - h / 2;
+		if (y + h > canvasY + canvasHeight - 10)
+		{
+			y = canvasY + canvasHeight - 10 - h;
+		}
+		else if (y < 5)
+		{
+			y = 5;
+		}
 
 		int cornerRadius = 0;
 
