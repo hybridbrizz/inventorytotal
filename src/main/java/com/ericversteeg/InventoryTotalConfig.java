@@ -12,7 +12,7 @@ public interface InventoryTotalConfig extends Config
 	String GROUP = "inventorytotal";
 
 	@ConfigItem(
-			position = -1,
+			position = -2,
 			keyName = "itemPricesKey",
 			name = "Prices",
 			description = "Configures the price type."
@@ -23,7 +23,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = -1,
+			position = -2,
 			keyName = "enableProfitLoss",
 			name = "Profit / Loss",
 			description = "Configures whether or not current total is relative to start amount."
@@ -34,7 +34,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = -1,
+			position = -2,
 			keyName = "profitLossToggleKey",
 			name = "Switch Mode Key",
 			description = "Switch between Total & Profit / Loss modes."
@@ -45,7 +45,7 @@ public interface InventoryTotalConfig extends Config
 	}
 
 	@ConfigItem(
-			position = 0,
+			position = -1,
 			keyName = "newRunKey",
 			name = "Reset Key",
 			description = "Resets the ledger and timer."
@@ -54,6 +54,19 @@ public interface InventoryTotalConfig extends Config
 	{
 		return new Keybind(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK);
 	}
+
+	@ConfigItem(
+			position = 0,
+			keyName = "alwaysAboveWidgetsKey",
+			name = "Display Over UI Elements",
+			description = "Always display the total over UI elements (note: this will cause the total not " +
+					"to hide when cutscenes are playing)."
+	)
+	default boolean isAlwaysAboveWidgets()
+	{
+		return false;
+	}
+
 
 	@Alpha
 	@ConfigItem(

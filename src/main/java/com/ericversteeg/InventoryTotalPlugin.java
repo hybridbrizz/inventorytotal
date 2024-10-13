@@ -140,12 +140,17 @@ public class InventoryTotalPlugin extends Plugin
 			{
 				unregisterKeys();
 				registerKeys();
-			} else if (config.getKey().equals("ignoredItems"))
+			}
+			else if (config.getKey().equals("ignoredItems"))
 			{
 				// update the runData if it's already initialized
 				if (runData != null) {
 					runData.ignoredItems = getIgnoredItems();
 				}
+			}
+			else if (config.getKey().equals("alwaysAboveWidgetsKey"))
+			{
+				setOverlayAboveWidgets(this.config.isAlwaysAboveWidgets());
 			}
 		}
 	}
@@ -853,5 +858,12 @@ public class InventoryTotalPlugin extends Plugin
 			return true;
 		}
 		return false;
+	}
+
+	void setOverlayAboveWidgets(boolean isAboveWidgets)
+	{
+		overlay.setAboveWidgets(isAboveWidgets || config.isAlwaysAboveWidgets());
+		overlayManager.remove(overlay);
+		overlayManager.add(overlay);
 	}
 }
