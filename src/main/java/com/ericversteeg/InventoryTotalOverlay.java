@@ -227,7 +227,9 @@ class InventoryTotalOverlay extends Overlay
 		updatePluginState();
 
 		viewportWidget = getViewportWidget();
-		if (viewportWidget.isHidden())
+		Widget depositBox = client.getWidget(ComponentID.DEPOSIT_BOX_INVENTORY_ITEM_CONTAINER);
+
+		if (viewportWidget.isHidden() || (depositBox != null && !depositBox.isHidden()))
 		{
 			return null;
 		}
