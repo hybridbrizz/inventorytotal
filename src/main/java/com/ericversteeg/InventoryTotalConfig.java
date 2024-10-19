@@ -55,19 +55,6 @@ public interface InventoryTotalConfig extends Config
 		return new Keybind(KeyEvent.VK_K, InputEvent.CTRL_DOWN_MASK);
 	}
 
-	@ConfigItem(
-			position = 0,
-			keyName = "alwaysAboveWidgetsKey",
-			name = "Display Over UI Elements",
-			description = "Always display the total over UI elements (note: this will cause the total not " +
-					"to hide when cutscenes are playing)."
-	)
-	default boolean isAlwaysAboveWidgets()
-	{
-		return false;
-	}
-
-
 	@Alpha
 	@ConfigItem(
 			position = 1,

@@ -59,8 +59,6 @@ class InventoryTotalOverlay extends Overlay
 	private int invW = -1;
 	private int invH = -1;
 
-	private boolean lastRenderShowingTooltip = false;
-
 	private Widget viewportWidget;
 	private int canvasX = 0;
 	private int canvasY = 0;
@@ -71,7 +69,7 @@ class InventoryTotalOverlay extends Overlay
 	private InventoryTotalOverlay(Client client, InventoryTotalPlugin plugin, InventoryTotalConfig config, ItemManager itemManager)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
-		setAboveWidgets(config.isAlwaysAboveWidgets());
+		setLayer(OverlayLayer.ABOVE_WIDGETS);
 
 		this.client = client;
 		this.plugin = plugin;
@@ -229,6 +227,11 @@ class InventoryTotalOverlay extends Overlay
 		updatePluginState();
 
 		viewportWidget = getViewportWidget();
+		if (viewportWidget.isHidden())
+		{
+			return null;
+		}
+
 		canvasX = viewportWidget.getCanvasLocation().getX();
 		canvasY = viewportWidget.getCanvasLocation().getY();
 		canvasWidth = viewportWidget.getWidth() + 28;
@@ -430,8 +433,6 @@ class InventoryTotalOverlay extends Overlay
 		int mouseX = mouse.getX();
 		int mouseY = mouse.getY();
 
-		boolean isShowingTooltip = false;
-
 		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
 		if (roundRectangle2D.contains(mouseX, mouseY) && (plugin.getState() != InventoryTotalState.BANK || !config.newRunAfterBanking())
 				&& (Instant.now().toEpochMilli() - newRunTime) > (BANK_CLOSE_DELAY + 500) && config.showTooltip())
@@ -444,16 +445,7 @@ class InventoryTotalOverlay extends Overlay
 			{
 				renderLedger(graphics);
 			}
-
-			isShowingTooltip = true;
 		}
-
-		// display UI above widgets only when showing the tooltip (or the setting is enabled)
-		if (lastRenderShowingTooltip != isShowingTooltip)
-		{
-			plugin.setOverlayAboveWidgets(isShowingTooltip);
-		}
-		lastRenderShowingTooltip = isShowingTooltip;
 	}
 
 	private void renderLedger(Graphics2D graphics)
@@ -886,17 +878,5 @@ class InventoryTotalOverlay extends Overlay
 	public void hideInterstitial()
 	{
 		showInterstitial = false;
-	}
-
-	public void setAboveWidgets(boolean isAboveWidgets)
-	{
-		if (isAboveWidgets)
-		{
-			setLayer(OverlayLayer.ABOVE_WIDGETS);
-		}
-		else
-		{
-			setLayer(OverlayLayer.UNDER_WIDGETS);
-		}
 	}
 }
