@@ -223,7 +223,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default int inventoryYOffset()
 	{
-		return 42;
+		return 12;
 	}
 
 	@ConfigItem(
