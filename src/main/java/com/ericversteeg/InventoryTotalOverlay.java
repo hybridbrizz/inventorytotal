@@ -33,7 +33,7 @@ class InventoryTotalOverlay extends Overlay
 	private static final String PROFIT_LOSS_TIME_FORMAT = "%02d:%02d:%02d";
 	private static final String PROFIT_LOSS_TIME_NO_HOURS_FORMAT = "%02d:%02d";
 	private static final int HORIZONTAL_PADDING = 10;
-	private static final int BANK_CLOSE_DELAY = 1200;
+	private static final int BANK_CLOSE_DELAY = 0;
 	private static final Color LEDGER_BACKGROUND_COLOR = new Color(27, 27, 27, 202);
 	static final int COINS = ItemID.COINS_995;
 
@@ -294,6 +294,13 @@ class InventoryTotalOverlay extends Overlay
 	private void renderTotal(InventoryTotalConfig config, Graphics2D graphics, InventoryTotalPlugin plugin,
 							 long totalQty, long total, String totalText,
 							 String runTimeText, int height) {
+
+		if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
+		{
+			long profitGp = plugin.getProfitGp(); // Get the actual profit value
+			totalText = profitGp > 0 ? ('+' + totalText) : totalText; // Prepend '+' only if profit is positive
+		}
+
 		int imageSize = 15;
 		boolean showCoinStack = config.showCoinStack();
 		int numCoins;
@@ -383,7 +390,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			textColor = new Color(0xFFFFFF); // Thousands
 		}
-		else if (numCoins >= 0)
+		else if (numCoins > 0)
 		{
 			textColor = new Color(0xFFFF00); // Hundreds
 		}
@@ -398,17 +405,16 @@ class InventoryTotalOverlay extends Overlay
 			backgroundColor = config.totalColor();
 			borderColor = config.borderColor();
 		}
-		else if (total >= 0)
+		else if (total > 0)
 		{
 			backgroundColor = config.profitColor();
 			borderColor = config.profitBorderColor();
-			textColor = config.profitTextColor();
 		}
 		else
 		{
 			backgroundColor = config.lossColor();
 			borderColor = config.lossBorderColor();
-			textColor = config.lossTextColor();
+			textColor = new Color(255,0,0,255);
 		}
 
 		int cornerRadius = config.cornerRadius();
@@ -460,7 +466,7 @@ class InventoryTotalOverlay extends Overlay
 
 		RoundRectangle2D roundRectangle2D = new RoundRectangle2D.Double(x, y, width + 1, height + 1, cornerRadius, cornerRadius);
 		if (roundRectangle2D.contains(mouseX, mouseY) && (plugin.getState() != InventoryTotalState.BANK || !config.newRunAfterBanking())
-				&& (Instant.now().toEpochMilli() - newRunTime) > (BANK_CLOSE_DELAY + 500) && config.showTooltip())
+				&& (Instant.now().toEpochMilli() - newRunTime) > (BANK_CLOSE_DELAY) && config.showTooltip())
 		{
 			if (plugin.getMode() == InventoryTotalMode.PROFIT_LOSS)
 			{
@@ -491,7 +497,7 @@ class InventoryTotalOverlay extends Overlay
 
 		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
 
-		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
+		ledger.add(new InventoryTotalLedgerItem("Total:", 1, total));
 
 		String [] descriptions = ledger.stream().map(item -> {
 			String desc = item.getDescription();
@@ -602,6 +608,29 @@ class InventoryTotalOverlay extends Overlay
 
 				int price = prices[i];
 
+				Color priceColor;
+				int numCoins = Math.abs(price);
+				if (numCoins >= 1_000_000_000)
+				{
+					priceColor = new Color(0x6698FF); // Billions
+				}
+				else if (numCoins >= 10_000_000)
+				{
+					priceColor = new Color(0x00FF80); // Millions
+				}
+				else if (numCoins >= 100_000)
+				{
+					priceColor = new Color(0xFFFFFF); // Thousands
+				}
+				else if (numCoins > 0)
+				{
+					priceColor = new Color(0xFFFF00); // Hundreds
+				}
+				else
+				{
+					priceColor = Color.RED;
+				}
+
 				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
 
 				int textW = fontMetrics.stringWidth(formattedPrice);
@@ -609,15 +638,7 @@ class InventoryTotalOverlay extends Overlay
 				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				textComponent = new TextComponent();
-				if (price > 0)
-				{
-					textComponent.setColor(Color.GREEN);
-				}
-				else
-				{
-					textComponent.setColor(Color.WHITE);
-				}
-
+				textComponent.setColor(priceColor);
 				textComponent.setText(formattedPrice);
 
 				textComponent.setPosition(new Point(textX, textY));
@@ -655,9 +676,9 @@ class InventoryTotalOverlay extends Overlay
 		int totalLoss = loss.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
 		int total = ledger.stream().mapToInt(item -> item.getQty() * item.getAmount()).sum();
 
-		ledger.add(new InventoryTotalLedgerItem("Total Gain", 1, totalGain));
-		ledger.add(new InventoryTotalLedgerItem("Total Loss", 1, totalLoss));
-		ledger.add(new InventoryTotalLedgerItem("Total", 1, total));
+		ledger.add(new InventoryTotalLedgerItem("Total Gain:", 1, totalGain));
+		ledger.add(new InventoryTotalLedgerItem("Total Loss:", 1, totalLoss));
+		ledger.add(new InventoryTotalLedgerItem("Total:", 1, total));
 
 		String [] descriptions = ledger.stream().map(item -> {
 			String desc = item.getDescription();
@@ -668,11 +689,13 @@ class InventoryTotalOverlay extends Overlay
 			}
 			return desc;
 		}).toArray(String[]::new);
-		Integer [] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
+		Integer[] prices = ledger.stream().map(item -> item.getQty() * item.getAmount()).toArray(Integer[]::new);
 
-		String [] formattedPrices = Arrays.stream(prices).map(
-				p -> NumberFormat.getInstance(Locale.ENGLISH).format(p)
-		).toArray(String[]::new);
+		String[] formattedPrices = Arrays.stream(prices).map(p -> {
+			String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(Math.abs(p));
+			return (p > 0 ? "+" : (p < 0 ? "-" : "")) + formattedPrice;
+		}).toArray(String[]::new);
+
 
 		Integer [] rowWidths = IntStream.range(0, descriptions.length).mapToObj(
 				i -> fontMetrics.stringWidth(descriptions[i])
@@ -772,23 +795,19 @@ class InventoryTotalOverlay extends Overlay
 
 				prevDesc = desc;
 
-				int price = prices[i];
+				Color priceColor = getColor(prices[i]);
 
-				String formattedPrice = NumberFormat.getInstance(Locale.ENGLISH).format(price);
-
+				String formattedPrice = formattedPrices[i];
 				int textW = fontMetrics.stringWidth(formattedPrice);
 				textX = x + rowW - HORIZONTAL_PADDING / 2 - textW;
 				textY = y + rowH * i + TEXT_Y_OFFSET + yOffset;
 
 				textComponent = new TextComponent();
 
-				if (price > 0)
-				{
-					textComponent.setColor(Color.GREEN);
-				}
-				else if (price < 0)
-				{
-					textComponent.setColor(Color.RED);
+				if (prices[i] > 0) {
+					textComponent.setColor(priceColor); // Choose color for profits
+				} else if (prices[i] < 0) {
+					textComponent.setColor(Color.RED); // Color for losses
 				}
 
 				textComponent.setText(formattedPrice);
@@ -797,6 +816,35 @@ class InventoryTotalOverlay extends Overlay
 				textComponent.render(graphics);
 			}
 		}
+	}
+
+	private static Color getColor(Integer prices)
+	{
+		int price = prices;
+
+		Color priceColor;
+		int numCoins = Math.abs(price);
+		if (numCoins >= 1_000_000_000)
+		{
+			priceColor = new Color(0x6698FF); // Billions
+		}
+		else if (numCoins >= 10_000_000)
+		{
+			priceColor = new Color(0x00FF80); // Millions
+		}
+		else if (numCoins >= 100_000)
+		{
+			priceColor = new Color(0xFFFFFF); // Thousands
+		}
+		else if (numCoins > 0)
+		{
+			priceColor = new Color(0xFFFF00); // Hundreds
+		}
+		else
+		{
+			priceColor = Color.BLACK;
+		}
+		return priceColor;
 	}
 
 	private String getTotalText(long total)

@@ -64,7 +64,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color totalColor()
 	{
-		return Color.decode("#99903D");
+		return new Color(255,255,255,0);
 	}
 
 	@Alpha
@@ -76,7 +76,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color borderColor()
 	{
-		return Color.decode("#0E0E0E");
+		return new Color(255,255,255,0);
 	}
 
 	@Alpha
@@ -88,18 +88,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color profitColor()
 	{
-		return Color.decode("#245C2D");
-	}
-
-	@ConfigItem(
-			position = 5,
-			keyName = "profitTextColor",
-			name = "Profit Text Color",
-			description = "Configures profit text color."
-	)
-	default Color profitTextColor()
-	{
-		return Color.decode("#FFF7E3");
+		return new Color(255,255,255,0);
 	}
 
 	@Alpha
@@ -111,7 +100,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color profitBorderColor()
 	{
-		return Color.decode("#0E0E0E");
+		return new Color(255,255,255,0);
 	}
 
 	@Alpha
@@ -123,18 +112,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color lossColor()
 	{
-		return Color.decode("#5F1515");
-	}
-
-	@ConfigItem(
-			position = 8,
-			keyName = "lossTextColor",
-			name = "Loss Text Color",
-			description = "Configures loss text color."
-	)
-	default Color lossTextColor()
-	{
-		return Color.decode("#FFF7E3");
+		return new Color(255,255,255,0);
 	}
 
 	@Alpha
@@ -146,7 +124,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default Color lossBorderColor()
 	{
-		return Color.decode("#0E0E0E");
+		return new Color(255,255,255,0);
 	}
 
 	@ConfigItem(
@@ -157,7 +135,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default boolean roundCorners()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
@@ -179,7 +157,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default InventoryTotalAlignment horizontalAlignment()
 	{
-		return InventoryTotalAlignment.CENTER;
+		return InventoryTotalAlignment.RIGHT;
 	}
 
 	@ConfigItem(
@@ -190,7 +168,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default int inventoryXOffset()
 	{
-		return 0;
+		return 26;
 	}
 
 	@ConfigItem(
@@ -212,7 +190,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default int inventoryYOffset()
 	{
-		return 12;
+		return 36;
 	}
 
 	@ConfigItem(
@@ -300,7 +278,7 @@ public interface InventoryTotalConfig extends Config
 	)
 	default boolean hideWithInventory()
 	{
-		return false;
+		return true;
 	}
 
 	@ConfigItem(
