@@ -371,41 +371,18 @@ class InventoryTotalOverlay extends Overlay
 		Color borderColor;
 		Color textColor;
 
-		if (numCoins >= 1_000_000_000)
-		{
-			textColor = new Color(0x6698FF); // Billions
-		}
-		else if (numCoins >= 10_000_000)
-		{
-			textColor = new Color(0x00FF80); // Millions
-		}
-		else if (numCoins >= 100_000)
-		{
-			textColor = new Color(0xFFFFFF); // Thousands
-		}
-		else if (numCoins >= 0)
-		{
-			textColor = new Color(0xFFFF00); // Hundreds
-		}
-		else
-		{
-			textColor = new Color(0xFF0000); // Default
-		}
-
 		if ((plugin.getState() == InventoryTotalState.BANK && config.newRunAfterBanking())
-			|| plugin.getMode() == InventoryTotalMode.TOTAL)
-		{
+				|| plugin.getMode() == InventoryTotalMode.TOTAL) {
 			backgroundColor = config.totalColor();
 			borderColor = config.borderColor();
+			textColor = config.textColor();
 		}
-		else if (total >= 0)
-		{
+		else if (total >= 0) {
 			backgroundColor = config.profitColor();
 			borderColor = config.profitBorderColor();
 			textColor = config.profitTextColor();
 		}
-		else
-		{
+		else {
 			backgroundColor = config.lossColor();
 			borderColor = config.lossBorderColor();
 			textColor = config.lossTextColor();

@@ -67,6 +67,17 @@ public interface InventoryTotalConfig extends Config
 		return Color.decode("#99903D");
 	}
 
+	@ConfigItem(
+			position = 2,
+			keyName = "totalTextColor",
+			name = "Text Color",
+			description = "Configures the text color."
+	)
+	default Color textColor()
+	{
+		return Color.decode("#FFF7E3");
+	}
+
 	@Alpha
 	@ConfigItem(
 			position = 3,
