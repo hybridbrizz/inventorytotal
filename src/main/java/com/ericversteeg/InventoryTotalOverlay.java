@@ -402,6 +402,7 @@ class InventoryTotalOverlay extends Overlay
 		{
 			backgroundColor = config.profitColor();
 			borderColor = config.profitBorderColor();
+			textColor = config.profitTextColor();
 		}
 		else
 		{
