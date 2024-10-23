@@ -24,6 +24,9 @@
  */
 package com.ericversteeg;
 
+import lombok.Getter;
+
+@Getter
 public class InventoryTotalLedgerItem {
     private final String description;
     private int qty;
@@ -36,22 +39,7 @@ public class InventoryTotalLedgerItem {
         this.amount = amount;
     }
 
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public int getQty()
-    {
-        return qty;
-    }
-
-    public int getAmount()
-    {
-        return amount;
-    }
-
-    public void addQuantityDifference(int qtyDifference)
+	public void addQuantityDifference(int qtyDifference)
     {
         qty += qtyDifference;
     }

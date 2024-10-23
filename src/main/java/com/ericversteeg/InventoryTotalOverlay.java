@@ -25,6 +25,7 @@
  */
 package com.ericversteeg;
 
+import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
@@ -69,7 +70,9 @@ class InventoryTotalOverlay extends Overlay
 	private final ItemManager itemManager;
 
 	private Widget inventoryWidget;
+	@Getter
 	private ItemContainer inventoryItemContainer;
+	@Getter
 	private ItemContainer equipmentItemContainer;
 
 	private boolean onceBank = false;
@@ -84,7 +87,6 @@ class InventoryTotalOverlay extends Overlay
 	private int invW = -1;
 	private int invH = -1;
 
-	private Widget viewportWidget;
 	private int canvasX = 0;
 	private int canvasY = 0;
 	private int canvasWidth = 0;
@@ -251,7 +253,7 @@ class InventoryTotalOverlay extends Overlay
 	{
 		updatePluginState();
 
-		viewportWidget = getViewportWidget();
+		Widget viewportWidget = getViewportWidget();
 		Widget depositBox = client.getWidget(ComponentID.DEPOSIT_BOX_INVENTORY_ITEM_CONTAINER);
 
 		if (viewportWidget.isHidden() || (depositBox != null && !depositBox.isHidden()))
@@ -586,8 +588,8 @@ class InventoryTotalOverlay extends Overlay
 
 		graphics.setColor(Color.decode("#0b0b0b"));
 		graphics.setStroke(new BasicStroke(borderWidth));
-		graphics.drawRoundRect(x - borderWidth / 2, y - borderWidth / 2,
-				rowW + borderWidth / 2, h + borderWidth / 2, cornerRadius, cornerRadius);
+		graphics.drawRoundRect(x, y,
+			rowW, h, cornerRadius, cornerRadius);
 
 		if (descriptions.length == prices.length)
 		{
@@ -775,8 +777,8 @@ class InventoryTotalOverlay extends Overlay
 
 		graphics.setColor(Color.decode("#0b0b0b"));
 		graphics.setStroke(new BasicStroke(borderWidth));
-		graphics.drawRoundRect(x - borderWidth / 2, y - borderWidth / 2,
-				rowW + borderWidth / 2, h + borderWidth / 2, cornerRadius, cornerRadius);
+		graphics.drawRoundRect(x, y,
+			rowW, h, cornerRadius, cornerRadius);
 
 		if (descriptions.length == prices.length)
 		{
@@ -956,16 +958,6 @@ class InventoryTotalOverlay extends Overlay
 		{
 			return String.format(PROFIT_LOSS_TIME_NO_HOURS_FORMAT, mins, secs);
 		}
-	}
-
-	public ItemContainer getInventoryItemContainer()
-	{
-		return inventoryItemContainer;
-	}
-
-	public ItemContainer getEquipmentItemContainer()
-	{
-		return equipmentItemContainer;
 	}
 
 	public void showInterstitial()

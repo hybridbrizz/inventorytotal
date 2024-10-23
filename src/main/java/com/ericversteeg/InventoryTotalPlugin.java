@@ -27,6 +27,7 @@ package com.ericversteeg;
 
 import com.google.gson.Gson;
 import com.google.inject.Provides;
+import lombok.Getter;
 import net.runelite.api.*;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -88,16 +89,18 @@ public class InventoryTotalPlugin extends Plugin
 	@Inject
 	private KeyManager keyManager;
 
-	private String profileKey = "";
-
+	@Getter
 	private InventoryTotalRunData runData;
 
+	@Getter
 	private InventoryTotalMode mode = InventoryTotalMode.TOTAL;
 
+	@Getter
 	private InventoryTotalState state = InventoryTotalState.NONE;
 	private InventoryTotalState prevState = InventoryTotalState.NONE;
 
 	private long totalGp = 0;
+	@Getter
 	private long totalQty = 0;
 
 	private long runStartTime = 0;
@@ -139,7 +142,7 @@ public class InventoryTotalPlugin extends Plugin
 	@Subscribe
 	public void onRuneScapeProfileChanged(RuneScapeProfileChanged e)
 	{
-		profileKey = configManager.getRSProfileKey();
+		String profileKey = configManager.getRSProfileKey();
 		if (profileKey != null)
 		{
 			runData = getSavedData();
@@ -809,20 +812,10 @@ public class InventoryTotalPlugin extends Plugin
 		this.mode = mode;
 	}
 
-	public InventoryTotalMode getMode()
-	{
-		return mode;
-	}
-
 	void setState(InventoryTotalState state)
 	{
 		this.prevState = this.state;
 		this.state = state;
-	}
-
-	public InventoryTotalState getState()
-	{
-		return state;
 	}
 
 	public InventoryTotalState getPreviousState()
@@ -854,16 +847,6 @@ public class InventoryTotalPlugin extends Plugin
 	void setTotalQty(long totalQty)
 	{
 		this.totalQty = totalQty;
-	}
-
-	public long getTotalQty()
-	{
-		return totalQty;
-	}
-
-	public InventoryTotalRunData getRunData()
-	{
-		return runData;
 	}
 
 	public InventoryTotalMode getPLToggleOverride()
