@@ -83,15 +83,18 @@ class InventoryTotalOverlay extends Overlay
 		Widget widget;
 
 		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_INTERFACE_CONTAINER);
-		if (widget != null) return widget;
+		if (widget != null && !widget.isHidden()) return widget;
 
 		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INTERFACE_CONTAINER);
-		if (widget != null) return widget;
+		if (widget != null && !widget.isHidden()) return widget;
 
 		widget = client.getWidget(ComponentID.FIXED_VIEWPORT_INTERFACE_CONTAINER);
-		if (widget != null) return widget;
+		if (widget != null && !widget.isHidden()) return widget;
 
-		return client.getWidget(ComponentID.BANK_INVENTORY_ITEM_CONTAINER);
+		widget = client.getWidget(ComponentID.BANK_INVENTORY_ITEM_CONTAINER);
+		if (widget != null && !widget.isHidden()) return widget;
+
+		return null;
 	}
 
 	void updatePluginState()
@@ -229,7 +232,9 @@ class InventoryTotalOverlay extends Overlay
 		viewportWidget = getViewportWidget();
 		Widget depositBox = client.getWidget(ComponentID.DEPOSIT_BOX_INVENTORY_ITEM_CONTAINER);
 
-		if (viewportWidget.isHidden() || (depositBox != null && !depositBox.isHidden()))
+		if (viewportWidget == null
+				|| viewportWidget.isHidden()
+				|| (depositBox != null && !depositBox.isHidden()))
 		{
 			return null;
 		}
