@@ -65,6 +65,8 @@ class InventoryTotalOverlay extends Overlay
 	private int canvasWidth = 0;
 	private int canvasHeight = 0;
 
+	private boolean isResizableModern = true;
+
 	@Inject
 	private InventoryTotalOverlay(Client client, InventoryTotalPlugin plugin, InventoryTotalConfig config, ItemManager itemManager)
 	{
@@ -83,13 +85,25 @@ class InventoryTotalOverlay extends Overlay
 		Widget widget;
 
 		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_INTERFACE_CONTAINER);
-		if (widget != null && !widget.isHidden()) return widget;
+		if (widget != null && !widget.isHidden())
+		{
+			isResizableModern = false;
+			return widget;
+		}
 
 		widget = client.getWidget(ComponentID.RESIZABLE_VIEWPORT_BOTTOM_LINE_INTERFACE_CONTAINER);
-		if (widget != null && !widget.isHidden()) return widget;
+		if (widget != null && !widget.isHidden())
+		{
+			isResizableModern = true;
+			return widget;
+		}
 
 		widget = client.getWidget(ComponentID.FIXED_VIEWPORT_INTERFACE_CONTAINER);
-		if (widget != null && !widget.isHidden()) return widget;
+		if (widget != null && !widget.isHidden())
+		{
+			isResizableModern = false;
+			return widget;
+		}
 
 		widget = client.getWidget(ComponentID.BANK_INVENTORY_ITEM_CONTAINER);
 		if (widget != null && !widget.isHidden()) return widget;
@@ -366,6 +380,10 @@ class InventoryTotalOverlay extends Overlay
 		x += xOffset;
 
 		int yOffset = config.inventoryYOffset();
+		if (!isResizableModern && yOffset == 12)
+		{
+			yOffset += 30;
+		}
 		if (config.isInventoryYOffsetNegative())
 		{
 			yOffset *= -1;
