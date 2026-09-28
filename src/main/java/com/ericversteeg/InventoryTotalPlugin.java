@@ -295,7 +295,7 @@ public class InventoryTotalPlugin extends Plugin
 			}
 			else
 			{
-				gePrice = itemManager.getItemPrice(realItemId);
+				gePrice = (int) Math.min(itemManager.getItemPrice(realItemId), Integer.MAX_VALUE);
 			}
 
 			if (runData.itemPricesHA.containsKey(realItemId))
@@ -404,7 +404,7 @@ public class InventoryTotalPlugin extends Plugin
 			}
 			else
 			{
-				gePrice = itemManager.getItemPrice(itemId);
+				gePrice = (int) Math.min(itemManager.getItemPrice(itemId), Integer.MAX_VALUE);
 			}
 
 			if (runData.itemPricesHA.containsKey(itemId))
