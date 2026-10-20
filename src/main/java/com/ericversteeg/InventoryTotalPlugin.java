@@ -251,7 +251,7 @@ public class InventoryTotalPlugin extends Plugin
 
 		if (itemContainer == null)
 		{
-			return new int [2];
+			return new int [3];
 		}
 
 		final Item[] items = itemContainer.getItems();
